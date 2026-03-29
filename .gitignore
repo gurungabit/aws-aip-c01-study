@@ -1,0 +1,9 @@
+node_modules
+*.db
+.DS_Store
+.env
+.cache
+.tanstack
+.output
+.nitro
+.devcontainer

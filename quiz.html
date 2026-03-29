@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS AIP-C01 Practice Exam</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0e1a; color: #e0e0e0; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1a1f36, #232946); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d3555; position: sticky; top: 0; z-index: 10; }
+  .header h1 { font-size: 18px; color: #ff9900; }
+  .header-right { display: flex; gap: 20px; align-items: center; font-size: 14px; }
+  .timer { font-family: 'Courier New', monospace; font-size: 16px; color: #7fdbca; }
+  .timer.warning { color: #ff6b6b; }
+  .score-display { color: #c3cee3; }
+  .progress-bar { width: 100%; height: 4px; background: #1a1f36; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff9900, #ffb84d); transition: width 0.3s; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+
+  .start-screen, .results-screen { text-align: center; padding: 60px 24px; }
+  .start-screen h2 { font-size: 28px; color: #ff9900; margin-bottom: 12px; }
+  .start-screen p { color: #8892b0; margin-bottom: 8px; font-size: 15px; }
+  .start-screen .subtitle { font-size: 18px; color: #c3cee3; margin-bottom: 24px; }
+  .domain-weights { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 500px; margin: 24px auto; text-align: left; }
+  .domain-weights div { background: #1a1f36; padding: 10px 14px; border-radius: 6px; font-size: 13px; border-left: 3px solid #ff9900; }
+  .domain-weights span { color: #ff9900; font-weight: 600; }
+
+  .btn { background: linear-gradient(135deg, #ff9900, #e68a00); color: #000; border: none; padding: 14px 36px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,153,0,0.3); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { background: #232946; color: #c3cee3; border: 1px solid #3d4663; }
+  .btn-secondary:hover { background: #2d3555; box-shadow: none; }
+  .btn-sm { padding: 8px 20px; font-size: 14px; }
+
+  .question-card { background: #131729; border: 1px solid #2d3555; border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .question-meta { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 13px; }
+  .domain-tag { background: #232946; color: #ff9900; padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+  .q-number { color: #8892b0; }
+  .question-text { font-size: 16px; line-height: 1.7; margin-bottom: 24px; color: #e0e0e0; }
+  .select-hint { font-size: 13px; color: #ff9900; font-style: italic; margin-bottom: 16px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { background: #1a1f36; border: 2px solid #2d3555; border-radius: 8px; padding: 14px 18px; cursor: pointer; transition: all 0.15s; display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; }
+  .option:hover:not(.disabled) { border-color: #ff9900; background: #1e2340; }
+  .option.selected { border-color: #ff9900; background: #1e2340; }
+  .option.correct { border-color: #4caf50; background: rgba(76,175,80,0.1); }
+  .option.incorrect { border-color: #ff5252; background: rgba(255,82,82,0.1); }
+  .option.disabled { cursor: default; opacity: 0.7; }
+  .option.disabled.correct { opacity: 1; }
+  .option.disabled.selected { opacity: 1; }
+  .option-letter { min-width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #232946; font-weight: 600; font-size: 13px; color: #c3cee3; flex-shrink: 0; }
+  .option.selected .option-letter { background: #ff9900; color: #000; }
+  .option.correct .option-letter { background: #4caf50; color: #fff; }
+  .option.incorrect .option-letter { background: #ff5252; color: #fff; }
+
+  .explanation { background: #1a1f36; border-left: 4px solid #7fdbca; border-radius: 0 8px 8px 0; padding: 20px; margin-top: 20px; display: none; animation: slideIn 0.3s ease; }
+  .explanation.show { display: block; }
+  .explanation h4 { color: #7fdbca; margin-bottom: 8px; font-size: 14px; }
+  .explanation p { font-size: 14px; line-height: 1.7; color: #c3cee3; }
+  .explanation .wrong-why { margin-top: 12px; padding-top: 12px; border-top: 1px solid #2d3555; }
+  .explanation .wrong-why strong { color: #ff9900; }
+
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 24px; }
+
+  .results-screen h2 { font-size: 28px; color: #ff9900; margin-bottom: 8px; }
+  .score-big { font-size: 64px; font-weight: 700; margin: 24px 0; }
+  .score-big.pass { color: #4caf50; }
+  .score-big.fail { color: #ff5252; }
+  .pass-fail { font-size: 20px; margin-bottom: 32px; }
+  .pass-fail.pass { color: #4caf50; }
+  .pass-fail.fail { color: #ff5252; }
+  .domain-results { max-width: 500px; margin: 0 auto 32px; text-align: left; }
+  .domain-result { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #2d3555; }
+  .domain-result .name { font-size: 14px; }
+  .domain-result .bar-wrap { width: 120px; height: 8px; background: #232946; border-radius: 4px; margin: 0 12px; }
+  .domain-result .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+  .domain-result .pct { font-size: 14px; font-weight: 600; min-width: 40px; text-align: right; }
+
+  .review-list { max-width: 600px; margin: 24px auto; text-align: left; }
+  .review-item { padding: 10px 16px; border-bottom: 1px solid #2d3555; display: flex; align-items: center; gap: 12px; font-size: 14px; cursor: pointer; }
+  .review-item:hover { background: #1a1f36; }
+  .review-icon { font-size: 18px; }
+
+  .timer-toggle { display: flex; align-items: center; gap: 8px; margin: 20px 0; justify-content: center; font-size: 14px; color: #8892b0; }
+  .timer-toggle input { accent-color: #ff9900; }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .question-nav { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 20px 0; }
+  .q-dot { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #2d3555; background: #1a1f36; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all 0.15s; color: #8892b0; }
+  .q-dot:hover { border-color: #ff9900; }
+  .q-dot.current { border-color: #ff9900; color: #ff9900; font-weight: 700; }
+  .q-dot.answered { background: #232946; color: #c3cee3; }
+  .q-dot.correct-dot { background: rgba(76,175,80,0.2); border-color: #4caf50; color: #4caf50; }
+  .q-dot.incorrect-dot { background: rgba(255,82,82,0.2); border-color: #ff5252; color: #ff5252; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AWS AIP-C01 Practice Exam</h1>
+  <div class="header-right">
+    <div class="score-display" id="scoreDisplay">Score: 0 / 0</div>
+    <div class="timer" id="timer">03:00:00</div>
+  </div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="container" id="app"></div>
+
+<script>
+const questions = [
+  // === DOMAIN 1: FM Integration, Data Management & Compliance (6 questions) ===
+  {
+    id: 1, domain: "D1", domainName: "FM Integration, Data & Compliance", multi: false,
+    text: "A company is building a customer support chatbot using Amazon Bedrock. The chatbot must answer questions based on 50,000 product documentation pages stored in S3. Users report that the chatbot sometimes returns answers that aren't grounded in the actual documentation. The team needs a solution with low operational overhead.\n\nWhich approach will MOST effectively reduce hallucinations?",
+    options: [
+      { letter: "A", text: "Fine-tune a foundation model on the product documentation using Amazon SageMaker to embed the knowledge directly into the model weights" },
+      { letter: "B", text: "Configure Amazon Bedrock Knowledge Bases with the S3 data source and enable Bedrock Guardrails with Contextual Grounding checks" },
+      { letter: "C", text: "Build a custom RAG pipeline using Lambda for chunking, OpenSearch for vector storage, and implement manual similarity search with reranking" },
+      { letter: "D", text: "Increase the model's temperature parameter to 1.0 and add a system prompt instructing the model to only use provided context" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Bedrock Knowledge Bases provides managed RAG (auto-chunking, embedding, retrieval) with minimal operational overhead. Adding Guardrails with Contextual Grounding validates that responses are supported by retrieved context, catching hallucinations.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Fine-tuning embeds knowledge but doesn't prevent hallucination, and SageMaker adds operational overhead.\n<strong>C)</strong> Custom RAG works but violates 'low operational overhead' — Bedrock KB does this automatically.\n<strong>D)</strong> Temperature 1.0 increases randomness/hallucination. A system prompt alone isn't reliable for grounding."
+  },
+  {
+    id: 2, domain: "D1", domainName: "FM Integration, Data & Compliance", multi: true,
+    text: "A healthcare company needs to implement semantic search over 10 million patient education documents. Requirements include: hybrid search (keyword + semantic), metadata filtering by department and date range, low latency at scale, and HIPAA compliance.\n\nWhich TWO actions should the team take?",
+    options: [
+      { letter: "A", text: "Use Amazon OpenSearch Service with the neural search plugin, configure hybrid search with k-NN and BM25 scoring, and set up metadata field filters" },
+      { letter: "B", text: "Use Amazon DynamoDB with embedding attributes stored as binary data and scan operations for similarity matching" },
+      { letter: "C", text: "Store documents in S3 with server-side encryption using AWS KMS and configure VPC endpoints for private network access to the vector store" },
+      { letter: "D", text: "Use Amazon Aurora with pgvector for vector storage since it provides the best hybrid search capabilities at scale" },
+      { letter: "E", text: "Use Amazon Kendra with its built-in neural search and deploy it in a public subnet for maximum availability" }
+    ],
+    correct: ["A", "C"],
+    explanation: "<strong>A and C are correct.</strong>\n<strong>A)</strong> OpenSearch Service with neural plugin is the best option for hybrid search at scale — it supports both k-NN (semantic) and BM25 (keyword) scoring natively, plus metadata filtering and sharding for 10M+ docs.\n<strong>C)</strong> KMS encryption + VPC endpoints address HIPAA compliance requirements for encryption and network isolation.\n\n<strong>Why others are wrong:</strong>\n<strong>B)</strong> DynamoDB isn't designed for vector similarity search — scan operations would be extremely slow at 10M documents.\n<strong>D)</strong> Aurora pgvector works for smaller datasets but doesn't match OpenSearch's hybrid search capabilities and scaling at 10M docs.\n<strong>E)</strong> Public subnet violates HIPAA requirements. Also, Kendra is more of an intelligent search service, not optimized for this pattern."
+  },
+  {
+    id: 3, domain: "D1", domainName: "FM Integration, Data & Compliance", multi: false,
+    text: "A development team is implementing a RAG pipeline for a legal research application. Documents range from 2 to 200 pages. The team finds that fixed-size chunking causes some answers to miss important context that spans across chunk boundaries, while very large chunks dilute relevance.\n\nWhich chunking strategy will BEST address this issue?",
+    options: [
+      { letter: "A", text: "Increase the fixed chunk size to 4,000 tokens to capture more context per chunk" },
+      { letter: "B", text: "Use hierarchical chunking with parent-child relationships, where smaller child chunks are used for retrieval but larger parent chunks are sent to the FM for context" },
+      { letter: "C", text: "Switch to character-level chunking with a 500-character window for maximum granularity" },
+      { letter: "D", text: "Remove chunking entirely and send full documents to the FM for each query" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Hierarchical chunking solves the boundary problem elegantly: small child chunks provide precise retrieval (high relevance), while their parent chunks provide the surrounding context the FM needs. This is supported natively in Bedrock Knowledge Bases.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Larger chunks reduce the boundary problem but dilute relevance — the exact tradeoff the question describes.\n<strong>C)</strong> Smaller chunks make the boundary problem worse and 500 characters is far too small for meaningful context.\n<strong>D)</strong> 200-page documents would overflow context windows and waste tokens on irrelevant content."
+  },
+  {
+    id: 4, domain: "D1", domainName: "FM Integration, Data & Compliance", multi: false,
+    text: "A company needs to select a foundation model for their customer service application. The application handles 100,000 simple FAQ-style queries per day and 5,000 complex multi-step reasoning queries per day. The team has a fixed monthly budget and needs to optimize cost while maintaining quality for complex queries.\n\nWhich approach is MOST cost-effective?",
+    options: [
+      { letter: "A", text: "Use a single large model (Claude Opus) with provisioned throughput for all queries to ensure consistent quality" },
+      { letter: "B", text: "Implement model cascading — route simple queries to a smaller, cheaper model (Claude Haiku) and escalate complex queries to a larger model (Claude Sonnet) based on complexity classification" },
+      { letter: "C", text: "Fine-tune a small model on the FAQ dataset and use it for all queries including complex ones" },
+      { letter: "D", text: "Use batch inference for all queries to reduce costs, processing requests every 15 minutes" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Model cascading routes 95% of traffic (simple FAQs) to a cheap, fast model while reserving the expensive model for the 5% that needs it. This can reduce costs by 70%+ while maintaining quality where it matters.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Using Opus for 100K simple FAQs is extremely wasteful — these don't need advanced reasoning.\n<strong>C)</strong> Fine-tuning a small model on FAQs would handle simple queries but fail on complex multi-step reasoning.\n<strong>D)</strong> 15-minute batch latency is unacceptable for a customer service application — users expect real-time responses."
+  },
+  {
+    id: 5, domain: "D1", domainName: "FM Integration, Data & Compliance", multi: false,
+    text: "A team is managing prompt templates for a production GenAI application used by 50 developers. They need version control, parameterized templates, approval workflows before deploying prompt changes, and the ability to track which prompts are used in production.\n\nWhich AWS service should they use?",
+    options: [
+      { letter: "A", text: "Store prompt templates in Amazon S3 with versioning enabled and use S3 event notifications to trigger Lambda validation" },
+      { letter: "B", text: "Use Amazon Bedrock Prompt Management with versioning, parameterized variables, and approval workflows" },
+      { letter: "C", text: "Store prompts in AWS Systems Manager Parameter Store with version tracking" },
+      { letter: "D", text: "Use Amazon Bedrock Prompt Flows to create visual prompt chains with built-in versioning" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Bedrock Prompt Management is purpose-built for this: parameterized templates with variables, version control, approval workflows, and CloudTrail tracking of prompt usage. It's the managed solution for prompt governance.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> S3 versioning tracks file changes but doesn't provide parameterized templates, approval workflows, or prompt-specific governance.\n<strong>C)</strong> Parameter Store handles configuration values but lacks prompt-specific features like parameterization and approval workflows.\n<strong>D)</strong> Prompt Flows is for building prompt chains (sequential/branching execution), not for template management and governance."
+  },
+  {
+    id: 6, domain: "D1", domainName: "FM Integration, Data & Compliance", multi: false,
+    text: "An application uses Amazon Bedrock Knowledge Bases backed by OpenSearch Serverless. Users report that search results often return documents about the wrong product because product names are similar (e.g., 'ProMax 3000' vs 'ProMax 3000X'). Semantic search alone isn't distinguishing between them.\n\nWhich approach will BEST improve retrieval accuracy?",
+    options: [
+      { letter: "A", text: "Increase the number of retrieved documents (top-k) from 5 to 50 to ensure the correct product appears somewhere in results" },
+      { letter: "B", text: "Enable hybrid search combining semantic similarity with keyword matching (BM25), and add metadata filters for product identifiers" },
+      { letter: "C", text: "Switch the embedding model to one with higher dimensions to improve semantic differentiation" },
+      { letter: "D", text: "Re-chunk all documents into smaller 100-token chunks for more precise matching" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Hybrid search combines semantic understanding with exact keyword matching. BM25 will correctly distinguish 'ProMax 3000' from 'ProMax 3000X' through exact text matching, while semantic search handles conceptual understanding. Metadata filters on product IDs provide an additional precision layer.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Retrieving 50 documents increases noise without solving the precision problem — and wastes tokens.\n<strong>C)</strong> Higher embedding dimensions won't help distinguish nearly identical product names — this is a keyword matching problem, not a semantic one.\n<strong>D)</strong> Smaller chunks might make the problem worse by losing product name context."
+  },
+
+  // === DOMAIN 2: Implementation & Integration (5 questions) ===
+  {
+    id: 7, domain: "D2", domainName: "Implementation & Integration", multi: false,
+    text: "A development team is building an AI agent that needs to query a CRM API, search a product database, and generate email drafts. The agent must autonomously decide which tools to use based on the user's natural language request and handle multi-step reasoning.\n\nWhich approach is MOST appropriate?",
+    options: [
+      { letter: "A", text: "Use AWS Step Functions with a Choice state to route requests to different Lambda functions based on keyword matching in the user's input" },
+      { letter: "B", text: "Use Amazon Bedrock Agents with action groups that define Lambda functions for CRM queries, database search, and email generation" },
+      { letter: "C", text: "Build a custom orchestration layer using Lambda that parses user input with Amazon Comprehend and calls the appropriate APIs" },
+      { letter: "D", text: "Use Amazon Bedrock Prompt Flows to create a sequential chain that calls all three tools for every request" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Bedrock Agents use a ReAct reasoning loop where the FM autonomously decides which tools to invoke based on the user's request. Action groups define the available tools (Lambda functions), and the agent handles multi-step reasoning, tool selection, and orchestration.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Step Functions Choice states use deterministic routing — you must pre-define all paths. They don't do autonomous reasoning about which tool to use.\n<strong>C)</strong> Comprehend does entity/intent extraction but can't handle complex multi-step reasoning about tool orchestration.\n<strong>D)</strong> Prompt Flows execute sequentially/branching — calling all three tools for every request wastes resources and doesn't match the 'decide which tools' requirement."
+  },
+  {
+    id: 8, domain: "D2", domainName: "Implementation & Integration", multi: false,
+    text: "A company needs to deploy a GenAI application that handles unpredictable traffic patterns — ranging from 10 requests/minute during off-hours to 10,000 requests/minute during marketing campaigns. They need consistent low latency during peaks and want to minimize costs during quiet periods.\n\nWhich deployment strategy is MOST appropriate?",
+    options: [
+      { letter: "A", text: "Use Amazon Bedrock on-demand inference for all traffic and configure API Gateway with rate limiting" },
+      { letter: "B", text: "Use Amazon Bedrock provisioned throughput sized for peak capacity (10,000 req/min) to ensure consistent latency" },
+      { letter: "C", text: "Deploy the model on Amazon SageMaker with auto-scaling endpoints configured with minimum and maximum instance counts" },
+      { letter: "D", text: "Use Amazon Bedrock on-demand inference as the baseline with provisioned throughput reserved for peak periods, combined with semantic caching via ElastiCache to reduce redundant FM calls" }
+    ],
+    correct: ["D"],
+    explanation: "<strong>D is correct.</strong> This combines: on-demand for baseline (pay-per-use during quiet times), provisioned throughput for guaranteed capacity during peaks, and semantic caching to reduce the actual number of FM invocations needed. This balances cost and latency across variable traffic.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> On-demand alone may face throttling at 10,000 req/min without provisioned capacity, causing latency spikes.\n<strong>B)</strong> Provisioned for peak 24/7 is extremely wasteful when off-hours traffic is only 10 req/min.\n<strong>C)</strong> SageMaker auto-scaling works but has slower scale-up times (minutes) which won't handle sudden traffic spikes from campaign launches."
+  },
+  {
+    id: 9, domain: "D2", domainName: "Implementation & Integration", multi: true,
+    text: "A company is integrating their GenAI application with an existing on-premises ERP system. The solution must ensure that FM API calls never traverse the public internet, support real-time streaming responses to users, and work within the existing corporate network.\n\nWhich TWO components should the architecture include?",
+    options: [
+      { letter: "A", text: "AWS PrivateLink to establish private connectivity between the VPC and Amazon Bedrock" },
+      { letter: "B", text: "Amazon CloudFront with edge caching to accelerate response delivery" },
+      { letter: "C", text: "API Gateway WebSocket API to deliver streaming responses to the client application" },
+      { letter: "D", text: "AWS Direct Connect or Site-to-Site VPN between on-premises and the AWS VPC" },
+      { letter: "E", text: "Amazon Bedrock cross-region inference for multi-region resilience" }
+    ],
+    correct: ["A", "C"],
+    explanation: "<strong>A and C are correct.</strong>\n<strong>A)</strong> AWS PrivateLink creates VPC endpoints for Bedrock, ensuring API calls stay within the AWS private network and never traverse the public internet.\n<strong>C)</strong> API Gateway WebSocket API enables real-time bidirectional streaming, allowing the FM's response tokens to stream to the client as they're generated.\n\n<strong>Why others are wrong:</strong>\n<strong>B)</strong> CloudFront is a CDN for static/cached content — it doesn't help with private connectivity or real-time streaming of unique FM responses.\n<strong>D)</strong> Direct Connect/VPN connects on-premises to VPC, but the question specifically asks about FM API calls not traversing public internet — PrivateLink is the answer for Bedrock access.\n<strong>E)</strong> Cross-region inference is for resilience, not private connectivity."
+  },
+  {
+    id: 10, domain: "D2", domainName: "Implementation & Integration", multi: false,
+    text: "A team needs to build a multi-agent system where a 'Coordinator' agent delegates tasks to specialized agents: one for data analysis, one for report writing, and one for fact-checking. Each specialized agent uses a different FM optimized for its task.\n\nWhich approach requires the LEAST custom orchestration code?",
+    options: [
+      { letter: "A", text: "Build a custom Step Functions workflow that invokes each Bedrock model in a Parallel state and aggregates results" },
+      { letter: "B", text: "Use AWS Agent Squad to define a supervisor agent that coordinates between specialized Bedrock Agents, each configured with their own FM and tools" },
+      { letter: "C", text: "Create a single Bedrock Agent with multiple action groups, one for each specialized task" },
+      { letter: "D", text: "Use Amazon Bedrock Prompt Flows with parallel nodes that call different models simultaneously" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> AWS Agent Squad is specifically designed for multi-agent coordination. It provides a supervisor/orchestrator pattern where a coordinator agent delegates to specialized agents, each with their own FM and tools. This requires minimal custom code compared to building your own orchestration.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Step Functions Parallel state runs tasks concurrently but requires custom code for inter-agent communication and delegation logic.\n<strong>C)</strong> A single agent with multiple action groups uses one FM — the question requires different FMs for each specialist.\n<strong>D)</strong> Prompt Flows chain prompts, not agents — they lack the autonomous delegation and inter-agent reasoning required here."
+  },
+  {
+    id: 11, domain: "D2", domainName: "Implementation & Integration", multi: false,
+    text: "A developer is migrating an application from OpenAI's API to Amazon Bedrock. The application uses OpenAI's chat completions format extensively. The team wants to minimize code changes during migration.\n\nWhich Bedrock API should they use?",
+    options: [
+      { letter: "A", text: "The Bedrock Invoke API with model-specific request formatting" },
+      { letter: "B", text: "The Bedrock Converse API with its unified message format" },
+      { letter: "C", text: "The Bedrock Responses API or Chat Completions API which provides OpenAI-compatible endpoints" },
+      { letter: "D", text: "The Bedrock ApplyGuardrail API to process existing OpenAI-formatted requests" }
+    ],
+    correct: ["C"],
+    explanation: "<strong>C is correct.</strong> Bedrock's Responses API and Chat Completions API are OpenAI-compatible endpoints, meaning existing code using OpenAI's format can migrate with minimal changes — often just changing the endpoint URL and API key.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Invoke API uses model-specific formats (different for Claude vs Titan vs Llama) — maximum code changes needed.\n<strong>B)</strong> Converse API has its own unified format which is great for new apps but still requires reformatting all existing OpenAI calls.\n<strong>D)</strong> ApplyGuardrail is for applying safety policies, not for model invocation."
+  },
+
+  // === DOMAIN 3: AI Safety, Security & Governance (4 questions) ===
+  {
+    id: 12, domain: "D3", domainName: "AI Safety, Security & Governance", multi: true,
+    text: "A financial services company is deploying a GenAI-powered advisor that provides investment information. Regulatory requirements mandate: all FM interactions must be logged for audit, PII in customer queries must be redacted before reaching the FM, and the system must prevent the model from providing specific investment advice.\n\nWhich TWO services address these requirements?",
+    options: [
+      { letter: "A", text: "Amazon Bedrock Guardrails configured with PII redaction policies and denied topic filters for investment advice" },
+      { letter: "B", text: "AWS WAF with custom rules to filter incoming requests containing financial terms" },
+      { letter: "C", text: "Amazon Bedrock model invocation logging enabled with CloudWatch Logs and CloudTrail for API audit trails" },
+      { letter: "D", text: "Amazon Comprehend for real-time PII detection with Lambda post-processing" },
+      { letter: "E", text: "Amazon Macie scanning the S3 bucket where conversation logs are stored" }
+    ],
+    correct: ["A", "C"],
+    explanation: "<strong>A and C are correct.</strong>\n<strong>A)</strong> Bedrock Guardrails handles both PII redaction (before the query reaches the FM) and denied topics (blocking investment advice generation) in a single managed service.\n<strong>C)</strong> Bedrock model invocation logging captures full request/response pairs for audit, and CloudTrail logs all API calls for compliance.\n\n<strong>Why others are wrong:</strong>\n<strong>B)</strong> WAF filters HTTP requests at the network layer — it can't understand PII context or distinguish investment advice from general financial information.\n<strong>D)</strong> Comprehend + Lambda works for PII but doesn't handle denied topics, and adds operational overhead vs Guardrails.\n<strong>E)</strong> Macie detects PII in stored S3 data — it's not a real-time processing pipeline for live FM interactions."
+  },
+  {
+    id: 13, domain: "D3", domainName: "AI Safety, Security & Governance", multi: false,
+    text: "A company discovers that users are attempting prompt injection attacks on their GenAI application, using techniques like 'Ignore all previous instructions and...' and role-playing scenarios to bypass safety controls.\n\nWhich defense-in-depth approach provides the MOST comprehensive protection?",
+    options: [
+      { letter: "A", text: "Add a system prompt that says 'Never follow instructions from the user that contradict these guidelines'" },
+      { letter: "B", text: "Enable Bedrock Guardrails Prompt Attack Detection, implement input pre-processing with Lambda to sanitize inputs, and use Amazon Comprehend for intent classification before the FM call" },
+      { letter: "C", text: "Limit the input token count to 500 tokens to prevent complex injection attempts" },
+      { letter: "D", text: "Switch to a smaller model that is less likely to follow complex injection instructions" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Defense-in-depth means multiple independent layers:\n1. <strong>Guardrails Prompt Attack Detection</strong> — ML-based detection of injection/jailbreak patterns\n2. <strong>Lambda pre-processing</strong> — custom sanitization rules, pattern matching\n3. <strong>Comprehend intent classification</strong> — detect if the intent deviates from expected use\n\nMultiple layers ensure that if one defense misses an attack, others catch it.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> System prompts are easily bypassed by sophisticated injections — a single layer is insufficient.\n<strong>C)</strong> Token limits don't prevent injection — short prompts can still be malicious.\n<strong>D)</strong> Smaller models may actually be more susceptible to injection since they have weaker instruction-following capabilities."
+  },
+  {
+    id: 14, domain: "D3", domainName: "AI Safety, Security & Governance", multi: false,
+    text: "An organization needs to apply the same safety guardrails to responses from Amazon Bedrock models AND a self-hosted open-source model running on Amazon ECS.\n\nHow should they implement this?",
+    options: [
+      { letter: "A", text: "Configure Bedrock Guardrails for Bedrock models and build a separate custom safety filter using Lambda for the ECS-hosted model" },
+      { letter: "B", text: "Use the ApplyGuardrail API to apply Bedrock Guardrails to outputs from any model, including the self-hosted model on ECS" },
+      { letter: "C", text: "Migrate the open-source model to Bedrock Custom Model Import so Guardrails apply automatically" },
+      { letter: "D", text: "Deploy Amazon Comprehend as a centralized content moderation layer for both model outputs" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> The ApplyGuardrail API is specifically designed to apply Bedrock Guardrails to ANY text — regardless of where it came from. You can send outputs from self-hosted models, third-party APIs (like OpenAI), or any text source through Guardrails for safety evaluation.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Building a separate custom safety filter duplicates effort and creates inconsistent safety policies.\n<strong>C)</strong> Model import may not be possible/desirable for all models, and adds migration complexity.\n<strong>D)</strong> Comprehend does entity extraction and sentiment analysis but doesn't provide the full range of Guardrails policies (content moderation, denied topics, grounding checks, PII redaction, prompt attack detection)."
+  },
+  {
+    id: 15, domain: "D3", domainName: "AI Safety, Security & Governance", multi: false,
+    text: "A GenAI application generates responses that cite source documents. The compliance team needs to verify that the model's responses are factually consistent with the cited sources and that any claims can be traced back to specific source passages.\n\nWhich Bedrock Guardrails policy addresses this?",
+    options: [
+      { letter: "A", text: "Content Moderation policy to filter out inaccurate content" },
+      { letter: "B", text: "Contextual Grounding policy to check response faithfulness against source documents" },
+      { letter: "C", text: "Automated Reasoning policy to verify mathematical and logical consistency" },
+      { letter: "D", text: "Denied Topics policy configured to block unverifiable claims" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Contextual Grounding checks evaluate whether the FM's response is faithful to and grounded in the provided source context. It validates that claims in the response can be traced back to the source documents, which is exactly what the compliance team needs.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Content Moderation filters for harmful content categories (hate, violence, etc.) — not factual accuracy.\n<strong>C)</strong> Automated Reasoning verifies mathematical/logical correctness — not source attribution or factual grounding.\n<strong>D)</strong> Denied Topics blocks entire categories of conversation — it can't evaluate whether individual claims are supported by sources."
+  },
+
+  // === DOMAIN 4: Operational Efficiency & Optimization (3 questions) ===
+  {
+    id: 16, domain: "D4", domainName: "Operational Efficiency & Optimization", multi: false,
+    text: "A company's GenAI application costs $50,000/month in FM inference. Analysis shows that 40% of queries are near-duplicates (e.g., 'What is the return policy?' vs 'How do I return items?'). Another 30% are simple queries that don't require a large model. The remaining 30% are complex reasoning tasks.\n\nWhich combination of optimizations will achieve the GREATEST cost reduction?",
+    options: [
+      { letter: "A", text: "Enable Bedrock provisioned throughput for all queries to get volume discounts" },
+      { letter: "B", text: "Implement semantic caching for near-duplicate queries and model cascading to route simple queries to a smaller model" },
+      { letter: "C", text: "Fine-tune a smaller model on the company's data to handle all query types" },
+      { letter: "D", text: "Switch all traffic to batch inference to reduce per-token costs" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Two targeted optimizations:\n1. <strong>Semantic caching</strong> eliminates 40% of FM calls entirely by serving cached responses for semantically similar queries.\n2. <strong>Model cascading</strong> routes the 30% simple queries to a cheaper model (e.g., Haiku instead of Sonnet).\nCombined, this could reduce costs by 50-60%.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Provisioned throughput gives predictable pricing but doesn't reduce the volume of calls — the main cost driver.\n<strong>C)</strong> Fine-tuning a small model may degrade quality on complex reasoning tasks, and doesn't address the duplicate query problem.\n<strong>D)</strong> Batch inference adds latency (not real-time) which is unacceptable for user-facing applications."
+  },
+  {
+    id: 17, domain: "D4", domainName: "Operational Efficiency & Optimization", multi: false,
+    text: "A team needs to monitor their GenAI application and set up alerts for degradation. They want to track: token usage per request, response latency per model invocation, hallucination rates over time, and cost per customer interaction.\n\nWhich monitoring setup provides ALL of these capabilities?",
+    options: [
+      { letter: "A", text: "Enable Bedrock model invocation logging to CloudWatch Logs, create custom CloudWatch metrics for hallucination rate and cost, and set up CloudWatch alarms for threshold breaches" },
+      { letter: "B", text: "Use AWS X-Ray to trace all FM invocations and create X-Ray Insights for anomaly detection" },
+      { letter: "C", text: "Deploy Amazon Managed Grafana and connect it directly to Bedrock for real-time dashboards" },
+      { letter: "D", text: "Use AWS Cost Explorer for cost tracking and CloudTrail for usage logging" }
+    ],
+    correct: ["A"],
+    explanation: "<strong>A is correct.</strong> This provides complete monitoring:\n- <strong>Bedrock invocation logging</strong> captures token usage and latency per request automatically.\n- <strong>Custom CloudWatch metrics</strong> allow tracking business metrics like hallucination rate and cost-per-interaction.\n- <strong>CloudWatch alarms</strong> provide automated alerting on any threshold.\n\n<strong>Why others are wrong:</strong>\n<strong>B)</strong> X-Ray traces distributed requests and latency but doesn't track token usage, hallucination rates, or cost metrics.\n<strong>C)</strong> Grafana is a dashboard tool — it needs data sources like CloudWatch. It can't directly connect to Bedrock.\n<strong>D)</strong> Cost Explorer shows aggregate billing and CloudTrail logs API calls — neither provides per-request token counts, latency, or hallucination tracking."
+  },
+  {
+    id: 18, domain: "D4", domainName: "Operational Efficiency & Optimization", multi: false,
+    text: "A real-time chat application using Amazon Bedrock has a p95 latency of 8 seconds for responses. Users expect responses to begin appearing within 1-2 seconds. The average response is 500 tokens.\n\nWhich optimization will have the MOST immediate impact on perceived latency?",
+    options: [
+      { letter: "A", text: "Switch to a model with a larger context window to process requests faster" },
+      { letter: "B", text: "Enable response streaming so tokens are delivered incrementally as they are generated" },
+      { letter: "C", text: "Enable Bedrock prompt caching to reduce time spent processing the prompt" },
+      { letter: "D", text: "Increase max_tokens from 500 to 2000 to give the model more room to generate faster" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> Response streaming delivers the first tokens to the user within milliseconds of generation starting, even if the full response takes 8 seconds. The user sees text appearing immediately (Time to First Token), which dramatically improves perceived latency.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> Context window size has no direct relationship to generation speed.\n<strong>C)</strong> Prompt caching reduces input processing time but doesn't help with the 500-token generation time that dominates latency.\n<strong>D)</strong> Increasing max_tokens doesn't make generation faster — it just allows longer responses. Setting it higher than needed wastes nothing but doesn't speed things up."
+  },
+
+  // === DOMAIN 5: Testing, Validation & Troubleshooting (2 questions) ===
+  {
+    id: 19, domain: "D5", domainName: "Testing, Validation & Troubleshooting", multi: false,
+    text: "A production RAG application suddenly starts returning irrelevant answers. The system worked correctly last week. The team checks and confirms: the FM hasn't changed, the knowledge base documents haven't been updated, and the guardrails configuration is unchanged.\n\nWhat is the MOST likely cause and how should they investigate?",
+    options: [
+      { letter: "A", text: "The embedding model was updated by the provider, causing embedding drift — compare vector similarity scores between current and baseline queries using CloudWatch metrics" },
+      { letter: "B", text: "The FM is experiencing hallucinations due to temperature drift — reset the temperature parameter to 0" },
+      { letter: "C", text: "The OpenSearch index is corrupted — rebuild the entire vector index from scratch" },
+      { letter: "D", text: "Users are sending different types of queries than before — analyze recent query patterns in CloudWatch Logs Insights" }
+    ],
+    correct: ["A"],
+    explanation: "<strong>A is correct.</strong> Embedding drift is a common GenAI-specific failure mode. If the embedding model provider updates the model, existing vectors in the store no longer align with new query embeddings, causing retrieval quality to degrade suddenly. Comparing similarity scores between current queries and a known baseline reveals if the embedding space has shifted.\n\n<strong>Why others are wrong:</strong>\n<strong>B)</strong> Temperature doesn't 'drift' on its own — it's a fixed parameter in the API call.\n<strong>C)</strong> Index corruption is rare and would more likely cause errors/timeouts, not irrelevant results.\n<strong>D)</strong> Possible but less likely to cause sudden degradation — query pattern changes tend to be gradual."
+  },
+  {
+    id: 20, domain: "D5", domainName: "Testing, Validation & Troubleshooting", multi: false,
+    text: "A team needs to evaluate whether their GenAI application's responses are factually accurate and well-structured. They have 500 test queries with known expected outputs. Manual human evaluation is too slow for the CI/CD pipeline.\n\nWhich automated evaluation approach is MOST appropriate?",
+    options: [
+      { letter: "A", text: "Calculate BLEU scores comparing generated responses to expected outputs" },
+      { letter: "B", text: "Use LLM-as-a-Judge with Amazon Bedrock Model Evaluation to score responses on accuracy, relevance, and structure using a separate FM" },
+      { letter: "C", text: "Measure response latency and token count as proxy metrics for quality" },
+      { letter: "D", text: "Deploy Amazon SageMaker Clarify to detect bias in the generated responses" }
+    ],
+    correct: ["B"],
+    explanation: "<strong>B is correct.</strong> LLM-as-a-Judge uses a separate FM to evaluate responses on multiple dimensions (accuracy, relevance, structure). Bedrock Model Evaluation supports this natively and can run in CI/CD pipelines. It's the most effective automated evaluation for open-ended generative outputs.\n\n<strong>Why others are wrong:</strong>\n<strong>A)</strong> BLEU scores measure n-gram overlap — they work for translation but poorly evaluate factual accuracy or reasoning quality in free-form text.\n<strong>C)</strong> Latency and token count measure performance, not quality.\n<strong>D)</strong> Clarify detects statistical bias (e.g., demographic fairness) — not factual accuracy or structural quality of individual responses."
+  }
+];
+
+// State
+let currentQ = 0;
+let answers = {};
+let timerOn = true;
+let timerSeconds = 50 * 60;
+let timerInterval = null;
+let screen = 'start'; // start, quiz, results
+
+function render() {
+  const app = document.getElementById('app');
+  if (screen === 'start') renderStart(app);
+  else if (screen === 'quiz') renderQuiz(app);
+  else if (screen === 'results') renderResults(app);
+}
+
+function renderStart(app) {
+  document.getElementById('timer').style.display = 'none';
+  document.getElementById('scoreDisplay').style.display = 'none';
+  document.getElementById('progressFill').style.width = '0%';
+  app.innerHTML = `
+    <div class="start-screen">
+      <h2>AWS AIP-C01 Practice Exam</h2>
+      <p class="subtitle">Generative AI Developer - Professional</p>
+      <p>20 scenario-based questions | Weighted by domain</p>
+      <div class="domain-weights">
+        <div><span>D1 (31%)</span> FM Integration, Data & Compliance - 6 Qs</div>
+        <div><span>D2 (26%)</span> Implementation & Integration - 5 Qs</div>
+        <div><span>D3 (20%)</span> Safety, Security & Governance - 4 Qs</div>
+        <div><span>D4 (12%)</span> Operational Efficiency - 3 Qs</div>
+        <div><span>D5 (11%)</span> Testing & Troubleshooting - 2 Qs</div>
+      </div>
+      <div class="timer-toggle">
+        <input type="checkbox" id="timerToggle" checked>
+        <label for="timerToggle">Enable 50-minute timer</label>
+      </div>
+      <br>
+      <button class="btn" onclick="startQuiz()">Start Exam</button>
+    </div>
+  `;
+}
+
+function startQuiz() {
+  timerOn = document.getElementById('timerToggle').checked;
+  screen = 'quiz';
+  currentQ = 0;
+  answers = {};
+  timerSeconds = 50 * 60;
+  document.getElementById('timer').style.display = timerOn ? 'block' : 'none';
+  document.getElementById('scoreDisplay').style.display = 'block';
+  if (timerOn) {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tickTimer, 1000);
+  }
+  render();
+}
+
+function tickTimer() {
+  if (timerSeconds <= 0) { clearInterval(timerInterval); finishExam(); return; }
+  timerSeconds--;
+  const h = Math.floor(timerSeconds / 3600);
+  const m = Math.floor((timerSeconds % 3600) / 60);
+  const s = timerSeconds % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if (timerSeconds < 600) el.classList.add('warning');
+}
+
+function updateScore() {
+  let correct = 0, total = 0;
+  for (const [qIdx, ans] of Object.entries(answers)) {
+    if (ans.submitted) {
+      total++;
+      if (ans.isCorrect) correct++;
+    }
+  }
+  document.getElementById('scoreDisplay').textContent = `Score: ${correct} / ${total}`;
+}
+
+function renderQuiz(app) {
+  const q = questions[currentQ];
+  const ans = answers[currentQ] || { selected: [], submitted: false, isCorrect: false };
+  const submitted = ans.submitted;
+
+  document.getElementById('progressFill').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+  updateScore();
+
+  let optionsHtml = q.options.map(o => {
+    let cls = 'option';
+    if (submitted) cls += ' disabled';
+    if (ans.selected.includes(o.letter)) cls += ' selected';
+    if (submitted && q.correct.includes(o.letter)) cls += ' correct';
+    if (submitted && ans.selected.includes(o.letter) && !q.correct.includes(o.letter)) cls += ' incorrect';
+    return `<div class="${cls}" onclick="selectOption(${currentQ}, '${o.letter}')" data-letter="${o.letter}">
+      <div class="option-letter">${o.letter}</div>
+      <div>${o.text}</div>
+    </div>`;
+  }).join('');
+
+  let navDots = questions.map((qq, i) => {
+    let cls = 'q-dot';
+    if (i === currentQ) cls += ' current';
+    const a = answers[i];
+    if (a && a.submitted) {
+      cls += a.isCorrect ? ' correct-dot' : ' incorrect-dot';
+    } else if (a && a.selected.length > 0) {
+      cls += ' answered';
+    }
+    return `<div class="${cls}" onclick="goToQ(${i})">${i + 1}</div>`;
+  }).join('');
+
+  let explHtml = '';
+  if (submitted) {
+    explHtml = `<div class="explanation show">
+      <h4>${ans.isCorrect ? 'Correct!' : 'Incorrect'}</h4>
+      <p>${q.explanation}</p>
+    </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="question-nav">${navDots}</div>
+    <div class="question-card">
+      <div class="question-meta">
+        <span class="domain-tag">${q.domainName}</span>
+        <span class="q-number">Question ${currentQ + 1} of ${questions.length}</span>
+      </div>
+      <div class="question-text">${q.text.replace(/\n/g, '<br>')}</div>
+      ${q.multi ? '<div class="select-hint">Select TWO answers</div>' : ''}
+      <div class="options">${optionsHtml}</div>
+      ${explHtml}
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-secondary btn-sm" onclick="prevQ()" ${currentQ === 0 ? 'disabled' : ''}>Previous</button>
+      <div>
+        ${!submitted ? `<button class="btn btn-sm" onclick="submitAnswer()" ${ans.selected.length === 0 ? 'disabled' : ''} id="submitBtn">Submit Answer</button>` : ''}
+        ${submitted && currentQ < questions.length - 1 ? `<button class="btn btn-sm" onclick="nextQ()">Next Question</button>` : ''}
+        ${submitted && currentQ === questions.length - 1 ? `<button class="btn btn-sm" onclick="finishExam()">Finish Exam</button>` : ''}
+        ${!submitted && currentQ < questions.length - 1 ? `<button class="btn btn-secondary btn-sm" onclick="nextQ()" style="margin-left:8px">Skip</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function selectOption(qIdx, letter) {
+  const q = questions[qIdx];
+  if (!answers[qIdx]) answers[qIdx] = { selected: [], submitted: false, isCorrect: false };
+  if (answers[qIdx].submitted) return;
+
+  if (q.multi) {
+    const idx = answers[qIdx].selected.indexOf(letter);
+    if (idx >= 0) answers[qIdx].selected.splice(idx, 1);
+    else if (answers[qIdx].selected.length < 2) answers[qIdx].selected.push(letter);
+  } else {
+    answers[qIdx].selected = [letter];
+  }
+  render();
+}
+
+function submitAnswer() {
+  const q = questions[currentQ];
+  const ans = answers[currentQ];
+  if (!ans || ans.selected.length === 0) return;
+  ans.submitted = true;
+  const correctSet = new Set(q.correct);
+  const selectedSet = new Set(ans.selected);
+  ans.isCorrect = correctSet.size === selectedSet.size && [...correctSet].every(c => selectedSet.has(c));
+  render();
+}
+
+function nextQ() { if (currentQ < questions.length - 1) { currentQ++; render(); window.scrollTo(0, 0); } }
+function prevQ() { if (currentQ > 0) { currentQ--; render(); window.scrollTo(0, 0); } }
+function goToQ(i) { currentQ = i; render(); window.scrollTo(0, 0); }
+
+function finishExam() {
+  clearInterval(timerInterval);
+  screen = 'results';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function renderResults(app) {
+  document.getElementById('timer').style.display = 'none';
+  document.getElementById('progressFill').style.width = '100%';
+
+  let correct = 0, total = questions.length;
+  let domainStats = {};
+
+  questions.forEach((q, i) => {
+    if (!domainStats[q.domain]) domainStats[q.domain] = { name: q.domainName, correct: 0, total: 0 };
+    domainStats[q.domain].total++;
+    const ans = answers[i];
+    if (ans && ans.submitted && ans.isCorrect) {
+      correct++;
+      domainStats[q.domain].correct++;
+    }
+  });
+
+  const pct = Math.round((correct / total) * 100);
+  const scaled = Math.round(100 + (pct / 100) * 900);
+  const pass = scaled >= 750;
+
+  let domainHtml = Object.entries(domainStats).map(([key, d]) => {
+    const dp = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
+    const color = dp >= 75 ? '#4caf50' : dp >= 50 ? '#ff9900' : '#ff5252';
+    return `<div class="domain-result">
+      <span class="name">${d.name}</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${dp}%;background:${color}"></div></div>
+      <span class="pct" style="color:${color}">${d.correct}/${d.total}</span>
+    </div>`;
+  }).join('');
+
+  let reviewHtml = questions.map((q, i) => {
+    const ans = answers[i];
+    const icon = (ans && ans.submitted && ans.isCorrect) ? '<span style="color:#4caf50">&#10003;</span>' : '<span style="color:#ff5252">&#10007;</span>';
+    return `<div class="review-item" onclick="reviewQ(${i})">
+      <span class="review-icon">${icon}</span>
+      <span>Q${i+1}: ${q.domainName} — ${q.text.substring(0, 60)}...</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('scoreDisplay').textContent = `Final: ${correct}/${total}`;
+
+  app.innerHTML = `
+    <div class="results-screen">
+      <h2>Exam Complete</h2>
+      <div class="score-big ${pass ? 'pass' : 'fail'}">${scaled}/1000</div>
+      <div class="pass-fail ${pass ? 'pass' : 'fail'}">${pass ? 'PASS (750+ required)' : 'NEEDS IMPROVEMENT (750 required)'}</div>
+      <p style="color:#8892b0;margin-bottom:24px">${correct} of ${total} correct (${pct}%)</p>
+      <div class="domain-results">
+        <h3 style="margin-bottom:12px;font-size:16px;color:#c3cee3">Domain Breakdown</h3>
+        ${domainHtml}
+      </div>
+      <div class="review-list">
+        <h3 style="margin-bottom:12px;font-size:16px;color:#c3cee3">Review Questions</h3>
+        ${reviewHtml}
+      </div>
+      <br>
+      <button class="btn" onclick="restart()">Retake Exam</button>
+    </div>
+  `;
+}
+
+function reviewQ(i) {
+  screen = 'quiz';
+  currentQ = i;
+  render();
+  window.scrollTo(0, 0);
+}
+
+function restart() {
+  screen = 'start';
+  answers = {};
+  currentQ = 0;
+  render();
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>

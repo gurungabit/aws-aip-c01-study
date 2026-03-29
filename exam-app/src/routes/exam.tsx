@@ -1,0 +1,287 @@
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { useState, useEffect, useCallback } from 'react'
+import { getExam, getActiveExam, saveAnswer, submitAnswer, toggleFlag, finishExam } from '~/server/functions'
+import { getQuestions } from '~/data/questions'
+import type { Question, ExamVersion } from '~/data/questions'
+import { ConfirmModal } from '~/components/ConfirmModal'
+import { Explanation } from '~/components/Explanation'
+
+export const Route = createFileRoute('/exam')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    id: search.id !== undefined ? Number(search.id) : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ id: search.id }),
+  loader: async ({ deps }) => {
+    const examId = deps.id
+    if (!examId || isNaN(examId)) {
+      const active = await getActiveExam()
+      if (active) return getExam({ data: { examId: active.id } })
+      return null
+    }
+    return getExam({ data: { examId } })
+  },
+  component: ExamPage,
+})
+
+interface AnswerState {
+  selected: string[]
+  submitted: boolean
+  isCorrect: boolean
+  flagged: boolean
+}
+
+function ExamPage() {
+  const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  const navigate = useNavigate()
+
+  if (!data) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <h2 className="mb-3 text-xl font-semibold text-txt">No Active Exam</h2>
+        <p className="mb-6 text-sm text-txt-2">Start a new exam from the dashboard.</p>
+        <Link to="/" className="btn-primary">Go to Dashboard</Link>
+      </div>
+    )
+  }
+
+  const { exam, answers: dbAnswers } = data
+  const examId = exam.id
+  const version = (exam.version ?? 1) as ExamVersion
+  const questions = getQuestions(version)
+
+  const [currentQ, setCurrentQ] = useState(0)
+  const [answerMap, setAnswerMap] = useState<Record<number, AnswerState>>(() => {
+    const map: Record<number, AnswerState> = {}
+    for (const a of dbAnswers) {
+      map[a.questionId] = {
+        selected: JSON.parse(a.selectedAnswers),
+        submitted: a.submitted,
+        isCorrect: a.isCorrect,
+        flagged: a.flagged,
+      }
+    }
+    return map
+  })
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  const TOTAL_SECONDS = 180 * 60
+  const examStartMs = new Date(exam.startedAt).getTime()
+
+  const getElapsed = () => Math.floor((Date.now() - examStartMs) / 1000)
+  const [elapsed, setElapsed] = useState(getElapsed)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(getElapsed())
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [examStartMs])
+
+  const remaining = Math.max(0, TOTAL_SECONDS - elapsed)
+  const hours = Math.floor(remaining / 3600)
+  const mins = Math.floor((remaining % 3600) / 60)
+  const secs = remaining % 60
+  const timerStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+
+  useEffect(() => {
+    if (remaining <= 0) handleFinish()
+  }, [remaining])
+
+  const q = questions[currentQ]
+  const ans = answerMap[q.id] || { selected: [], submitted: false, isCorrect: false, flagged: false }
+
+  const handleSelect = useCallback(async (letter: string) => {
+    if (ans.submitted) return
+    setAnswerMap((prev) => {
+      const current = prev[q.id] || { selected: [], submitted: false, isCorrect: false, flagged: false }
+      let newSelected: string[]
+      if (q.multi) {
+        const idx = current.selected.indexOf(letter)
+        if (idx >= 0) newSelected = current.selected.filter((l) => l !== letter)
+        else if (current.selected.length < q.correct.length) newSelected = [...current.selected, letter]
+        else return prev
+      } else {
+        newSelected = [letter]
+      }
+      saveAnswer({ data: { examId, questionId: q.id, selectedAnswers: newSelected } })
+      return { ...prev, [q.id]: { ...current, selected: newSelected } }
+    })
+  }, [q.id, q.multi, ans.submitted, examId])
+
+  const handleSubmit = useCallback(async () => {
+    if (ans.selected.length === 0) return
+    const result = await submitAnswer({
+      data: { examId, questionId: q.id, selectedAnswers: ans.selected, version },
+    })
+    setAnswerMap((prev) => ({
+      ...prev,
+      [q.id]: { ...prev[q.id], submitted: true, isCorrect: result.isCorrect },
+    }))
+  }, [q.id, ans.selected, examId, version])
+
+  const handleFlag = useCallback(async () => {
+    const newFlagged = !ans.flagged
+    setAnswerMap((prev) => ({
+      ...prev,
+      [q.id]: { ...prev[q.id], flagged: newFlagged },
+    }))
+    await toggleFlag({ data: { examId, questionId: q.id, flagged: newFlagged } })
+  }, [q.id, ans.flagged, examId])
+
+  const handleFinish = async () => {
+    await finishExam({ data: { examId, timeSpentSeconds: elapsed } })
+    navigate({ to: '/results/$id', params: { id: String(examId) } })
+  }
+
+  const goTo = (idx: number) => { setCurrentQ(idx); window.scrollTo(0, 0) }
+  const next = () => { if (currentQ < questions.length - 1) goTo(currentQ + 1) }
+  const prev = () => { if (currentQ > 0) goTo(currentQ - 1) }
+
+  const submittedCount = Object.values(answerMap).filter((a) => a.submitted).length
+  const correctCount = Object.values(answerMap).filter((a) => a.submitted && a.isCorrect).length
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-6">
+      <div className="mb-4 flex items-center justify-between text-sm">
+        <span className="text-txt-2">
+          <span className="rounded-full bg-accent-dim px-2 py-0.5 text-xs font-medium text-accent mr-2">V{version}</span>
+          Score: {correctCount}/{submittedCount} answered
+        </span>
+        <span className={`font-mono text-lg ${remaining < 600 ? 'text-bad' : 'text-info'}`}>
+          {timerStr}
+        </span>
+      </div>
+
+      <div className="mb-4 h-1 overflow-hidden rounded-full bg-surface-2">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-hover transition-all"
+          style={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
+        />
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-1 justify-center">
+        {questions.map((qq, i) => {
+          const a = answerMap[qq.id]
+          let cls = 'w-7 h-7 rounded-lg text-xs flex items-center justify-center cursor-pointer transition-all border '
+          if (i === currentQ) cls += 'border-accent text-accent font-bold bg-accent-dim '
+          else if (a?.submitted && a.isCorrect) cls += 'border-ok-border bg-ok-dim text-ok '
+          else if (a?.submitted && !a.isCorrect) cls += 'border-bad-border bg-bad-dim text-bad '
+          else if (a?.flagged) cls += 'border-warn-border bg-warn-dim text-warn '
+          else if (a?.selected.length) cls += 'border-accent-border bg-surface-2 text-txt-2 '
+          else cls += 'border-accent-border/50 bg-surface text-txt-3 '
+          return (
+            <button key={qq.id} className={cls} onClick={() => goTo(i)}>
+              {a?.flagged ? '!' : i + 1}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className={`mb-4 ${ans.submitted ? 'flex flex-col xl:flex-row gap-4 xl:items-start' : ''}`}>
+        {/* Question + Options card */}
+        <div className={`card ${ans.submitted ? 'xl:flex-1 xl:min-w-0' : ''}`}>
+          <div className="mb-4 flex items-center justify-between">
+            <span className="domain-tag">{q.domainName}</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleFlag}
+                className={`btn-icon ${ans.flagged ? 'border-warn-border bg-warn-dim text-warn' : 'text-txt-3 hover:text-warn hover:border-warn-border'}`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                  <path d="M3.5 2.75a.75.75 0 0 0-1.5 0v14.5a.75.75 0 0 0 1.5 0v-4.392l1.657-.348a6.449 6.449 0 0 1 4.271.572 7.948 7.948 0 0 0 5.965.524l2.078-.64A.75.75 0 0 0 18 11.75V3.24a.75.75 0 0 0-.994-.709 6.448 6.448 0 0 1-4.993-.441 7.948 7.948 0 0 0-5.27-.706L3.5 2.051V2.75Z" />
+                </svg>
+                {ans.flagged ? 'Flagged' : 'Flag'}
+              </button>
+              <span className="text-xs text-txt-3">
+                Q{currentQ + 1}/{questions.length}
+              </span>
+            </div>
+          </div>
+
+          <p className="mb-6 whitespace-pre-line text-base leading-relaxed text-txt">
+            {q.text}
+          </p>
+
+          {q.multi && (
+            <p className="mb-3 text-sm italic text-accent">Select {q.correct.length === 2 ? 'TWO' : q.correct.length === 3 ? 'THREE' : q.correct.length} answers</p>
+          )}
+
+          <div className="space-y-2">
+            {q.options.map((opt) => {
+              let cls = 'flex items-start gap-3 rounded-xl border-2 p-3 transition-all cursor-pointer '
+              if (ans.submitted) {
+                cls += 'cursor-default '
+                if (q.correct.includes(opt.letter)) cls += 'border-ok-border bg-ok-dim '
+                else if (ans.selected.includes(opt.letter)) cls += 'border-bad-border bg-bad-dim '
+                else cls += 'border-accent-border/30 opacity-40 '
+              } else if (ans.selected.includes(opt.letter)) {
+                cls += 'border-accent bg-accent-dim '
+              } else {
+                cls += 'border-accent-border hover:border-accent/40 hover:bg-surface-2 '
+              }
+
+              return (
+                <div key={opt.letter} className={cls} onClick={() => handleSelect(opt.letter)}>
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      ans.submitted && q.correct.includes(opt.letter)
+                        ? 'bg-ok text-base'
+                        : ans.submitted && ans.selected.includes(opt.letter)
+                          ? 'bg-bad text-base'
+                          : ans.selected.includes(opt.letter)
+                            ? 'bg-accent text-base'
+                            : 'bg-surface-2 text-txt-2'
+                    }`}
+                  >
+                    {opt.letter}
+                  </span>
+                  <span className="text-sm leading-relaxed">{opt.text}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Explanation panel — side-by-side on xl screens */}
+        {ans.submitted && (
+          <div className="xl:w-[420px] xl:shrink-0 xl:sticky xl:top-20">
+            <Explanation html={q.explanation} isCorrect={ans.isCorrect} />
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between">
+        <button onClick={prev} disabled={currentQ === 0} className="btn-secondary">
+          Previous
+        </button>
+        <div className="flex gap-2">
+          {!ans.submitted && (
+            <button onClick={handleSubmit} disabled={ans.selected.length === 0} className="btn-primary text-sm">
+              Submit Answer
+            </button>
+          )}
+          {ans.submitted && currentQ < questions.length - 1 && (
+            <button onClick={next} className="btn-primary text-sm">Next Question</button>
+          )}
+          {!ans.submitted && currentQ < questions.length - 1 && (
+            <button onClick={next} className="btn-secondary">Skip</button>
+          )}
+        </div>
+        <button onClick={() => setShowConfirm(true)} className="btn-secondary text-bad border-bad-border">
+          Finish
+        </button>
+      </div>
+
+      <ConfirmModal
+        open={showConfirm}
+        title="Finish Exam?"
+        message={`${submittedCount} of ${questions.length} questions answered.\n${questions.length - submittedCount} unanswered questions will be marked incorrect.`}
+        confirmLabel="Submit Exam"
+        cancelLabel="Continue Exam"
+        onConfirm={handleFinish}
+        onCancel={() => setShowConfirm(false)}
+      />
+    </div>
+  )
+}

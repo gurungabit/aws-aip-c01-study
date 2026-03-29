@@ -1,0 +1,156 @@
+@import 'tailwindcss' source('../');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@theme {
+  --color-base: #18181b;
+  --color-surface: #27272a;
+  --color-surface-2: #3f3f46;
+  --color-surface-3: #52525b;
+
+  --color-txt: #fafafa;
+  --color-txt-2: #a1a1aa;
+  --color-txt-3: #71717a;
+
+  --color-accent: #c4b5fd;
+  --color-accent-hover: #ddd6fe;
+  --color-accent-dim: rgba(196, 181, 253, 0.08);
+  --color-accent-border: rgba(196, 181, 253, 0.15);
+
+  --color-ok: #86efac;
+  --color-ok-dim: rgba(134, 239, 172, 0.08);
+  --color-ok-border: rgba(134, 239, 172, 0.20);
+
+  --color-bad: #fca5a5;
+  --color-bad-dim: rgba(252, 165, 165, 0.08);
+  --color-bad-border: rgba(252, 165, 165, 0.20);
+
+  --color-warn: #fde68a;
+  --color-warn-dim: rgba(253, 230, 138, 0.08);
+  --color-warn-border: rgba(253, 230, 138, 0.20);
+
+  --color-info: #93c5fd;
+  --color-info-dim: rgba(147, 197, 253, 0.08);
+
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-accent-border);
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    font-family: var(--font-body);
+    background: var(--color-base);
+    color: var(--color-txt);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196, 181, 253, 0.03) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 90%, rgba(147, 197, 253, 0.02) 0%, transparent 70%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: modal-in 0.2s ease-out;
+  }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@layer components {
+  .btn-primary {
+    @apply rounded-xl bg-accent px-6 py-3 font-semibold text-base transition-all cursor-pointer;
+    font-family: var(--font-heading);
+    color: #18181b;
+    box-shadow: 0 2px 12px rgba(196, 181, 253, 0.12);
+  }
+  .btn-primary:hover {
+    @apply -translate-y-0.5 bg-accent-hover;
+    box-shadow: 0 6px 20px rgba(196, 181, 253, 0.2);
+  }
+  .btn-primary:disabled {
+    @apply opacity-40 translate-y-0 shadow-none cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply rounded-xl border border-accent-border bg-surface px-4 py-2 text-sm text-txt-2 transition-all cursor-pointer;
+  }
+  .btn-secondary:hover {
+    @apply bg-surface-2 text-txt;
+  }
+  .btn-secondary:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+
+  .card {
+    @apply rounded-2xl border border-accent-border bg-surface p-6;
+  }
+
+  .domain-tag {
+    @apply inline-block rounded-full px-3 py-1 text-xs font-medium text-accent;
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-border);
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-accent-border px-2.5 py-1 text-xs font-medium transition-all cursor-pointer;
+  }
+  .btn-icon:hover {
+    @apply bg-surface-2;
+  }
+
+  /* Explanation panel styling */
+  .explanation-content {
+    @apply text-sm leading-relaxed text-txt-2;
+  }
+  .explanation-content p {
+    @apply mb-3 last:mb-0;
+  }
+  .explanation-content p:first-child {
+    @apply text-txt font-medium;
+  }
+  .explanation-content strong {
+    @apply text-txt font-semibold;
+  }
+  /* Color-code "is correct" vs "is wrong" */
+  .explanation-content .correct-label {
+    @apply text-ok;
+  }
+  .explanation-content .wrong-label {
+    @apply text-bad/80;
+  }
+}
+
+@layer base {
+  button, [role="button"], a, summary, select, label[for], input[type="checkbox"], input[type="radio"] {
+    cursor: pointer;
+  }
+  button:disabled, [disabled] {
+    cursor: not-allowed;
+  }
+}
