@@ -324,26 +324,32 @@ function Dashboard() {
         </div>
       )}
 
-      {history.length > 0 && (
-        <div className="card">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-txt">Exam History</h2>
-            <div className="flex gap-2">
+      <div className="card">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-txt">Exam History</h2>
+          <div className="flex gap-2">
+            {history.length > 0 && (
               <button onClick={handleExport} className="btn-secondary text-xs">
                 Export
               </button>
-              <label className="btn-secondary text-xs cursor-pointer">
-                Import
-                <input type="file" accept=".json" onChange={handleImport} className="hidden" />
-              </label>
+            )}
+            <label className="btn-secondary text-xs cursor-pointer">
+              Import
+              <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+            </label>
+            {history.length > 0 && (
               <button
                 onClick={handleClearAll}
                 className="btn-secondary text-xs text-bad border-bad-border hover:bg-bad-dim"
               >
                 Clear All
               </button>
-            </div>
+            )}
           </div>
+        </div>
+        {history.length === 0 ? (
+          <p className="text-sm text-txt-3 text-center py-6">No exams taken yet. Start one above or import from another device.</p>
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -419,8 +425,8 @@ function Dashboard() {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
