@@ -3,12 +3,33 @@ import { marked } from 'marked'
 import { useEffect, useRef } from 'react'
 import { DOCS } from '~/data/docs'
 
+// Generate a heading ID that matches GFM-style anchor links in the TOC
+function headingId(text: string): string {
+  return text
+    .replace(/<[^>]+>/g, '') // strip any HTML tags
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // remove non-word chars except spaces/hyphens
+    .trim()
+    .replace(/\s+/g, '-')    // spaces → hyphens
+}
+
 export const Route = createFileRoute('/docs/$slug')({
   loader: async ({ params }) => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, '')
     const res = await fetch(`${base}/docs/${params.slug}.md`)
     if (!res.ok) throw new Error(`Could not load doc: ${params.slug}`)
     const text = await res.text()
+
+    // Custom renderer: inject id="" on every heading so TOC anchor links work
+    marked.use({
+      renderer: {
+        heading({ text, depth }) {
+          const id = headingId(text)
+          return `<h${depth} id="${id}">${text}</h${depth}>\n`
+        },
+      },
+    })
+
     const html = await marked(text)
     const meta = DOCS.find((d) => d.slug === params.slug)
     return { html, meta }
