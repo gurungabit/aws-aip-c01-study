@@ -29,14 +29,13 @@ export async function createExam(version: number): Promise<Exam> {
   const answerStore = tx.objectStore('examAnswers')
   for (const q of qs) {
     await answerStore.add({
-      id: 0,
       examId: examId as number,
       questionId: q.id,
       selectedAnswers: '[]',
       isCorrect: false,
       submitted: false,
       flagged: false,
-    })
+    } as ExamAnswer)
   }
   await tx.done
 
@@ -280,7 +279,6 @@ export async function importData(json: string): Promise<{ imported: number; skip
     const { id: _id, ...examWithoutId } = exam
     const newExamId = await db.add('exams', {
       ...examWithoutId,
-      id: 0,
       pausedAt: exam.pausedAt ?? null,
       pausedSeconds: exam.pausedSeconds ?? 0,
     } as Exam)
@@ -288,7 +286,7 @@ export async function importData(json: string): Promise<{ imported: number; skip
     const examAnswerRows = (parsed.answers ?? []).filter((a) => a.examId === oldId)
     for (const a of examAnswerRows) {
       const { id: _aid, ...ansWithoutId } = a
-      await db.add('examAnswers', { ...ansWithoutId, id: 0, examId: newExamId as number } as ExamAnswer)
+      await db.add('examAnswers', { ...ansWithoutId, examId: newExamId as number } as ExamAnswer)
     }
 
     imported++
