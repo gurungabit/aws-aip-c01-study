@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { marked } from 'marked'
+import { useEffect, useRef } from 'react'
 import { DOCS } from '~/data/docs'
 
 export const Route = createFileRoute('/docs/$slug')({
@@ -15,9 +16,53 @@ export const Route = createFileRoute('/docs/$slug')({
   component: DocPage,
 })
 
+async function renderMermaidDiagrams(container: HTMLElement) {
+  const codeBlocks = container.querySelectorAll('pre code.language-mermaid')
+  if (codeBlocks.length === 0) return
+
+  const mermaid = (await import('mermaid')).default
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#27272a',
+      primaryColor: '#c4b5fd',
+      primaryTextColor: '#fafafa',
+      primaryBorderColor: 'rgba(196, 181, 253, 0.15)',
+      lineColor: '#a1a1aa',
+      secondaryColor: '#3f3f46',
+      tertiaryColor: '#52525b',
+    },
+  })
+
+  for (const block of codeBlocks) {
+    const pre = block.parentElement
+    if (!pre) continue
+    const source = block.textContent ?? ''
+    const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`
+    try {
+      const { svg } = await mermaid.render(id, source)
+      const wrapper = document.createElement('div')
+      wrapper.className = 'mermaid-diagram'
+      wrapper.innerHTML = svg
+      pre.replaceWith(wrapper)
+    } catch {
+      // leave the code block as-is if rendering fails
+    }
+  }
+}
+
 function DocPage() {
   const { html, meta } = Route.useLoaderData()
   const { slug } = Route.useParams()
+  const articleRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (articleRef.current) {
+      renderMermaidDiagrams(articleRef.current)
+    }
+  }, [html])
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -30,6 +75,7 @@ function DocPage() {
       </div>
 
       <article
+        ref={articleRef}
         className="markdown-content"
         dangerouslySetInnerHTML={{ __html: html }}
       />
