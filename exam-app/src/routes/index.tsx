@@ -8,7 +8,7 @@ import {
   deleteExam,
   exportData,
   importData,
-} from "~/server/functions";
+} from "~/storage";
 import { getQuestions, VERSIONS } from "~/data/questions";
 import type { ExamVersion } from "~/data/questions";
 import { ConfirmModal } from "~/components/ConfirmModal";
@@ -72,7 +72,7 @@ function Dashboard() {
   };
 
   const handleStartExam = async () => {
-    const exam = await createExam({ data: { version: selectedVersion } });
+    const exam = await createExam(selectedVersion);
     navigate({ to: "/exam", search: { id: exam.id } });
   };
 
@@ -89,7 +89,7 @@ function Dashboard() {
       "Abandon",
       async () => {
         if (activeExam) {
-          await deleteExam({ data: { examId: activeExam.id } });
+          await deleteExam(activeExam.id);
           window.location.reload();
         }
       },
@@ -102,7 +102,7 @@ function Dashboard() {
       "This will permanently delete this exam and its results.",
       "Delete",
       async () => {
-        await deleteExam({ data: { examId } });
+        await deleteExam(examId);
         window.location.reload();
       },
     );
@@ -115,7 +115,7 @@ function Dashboard() {
       "Clear All",
       async () => {
         for (const exam of history) {
-          await deleteExam({ data: { examId: exam.id } });
+          await deleteExam(exam.id);
         }
         window.location.reload();
       },
@@ -138,7 +138,7 @@ function Dashboard() {
     if (!file) return;
     const json = await file.text();
     try {
-      const result = await importData({ data: { json } });
+      const result = await importData(json);
       setConfirmState({
         open: true,
         title: 'Import Complete',
@@ -301,7 +301,6 @@ function Dashboard() {
             Start New Exam
           </h2>
 
-          {/* Version Selector */}
           <div className="mb-6">
             <p className="mb-3 text-sm text-txt-2">Select Exam Version</p>
             <div className="flex justify-center gap-2">

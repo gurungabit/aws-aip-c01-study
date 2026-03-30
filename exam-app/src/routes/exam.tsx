@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useState, useEffect, useCallback } from 'react'
-import { getExam, getActiveExam, saveAnswer, submitAnswer, toggleFlag, finishExam, pauseExam, resumeExam } from '~/server/functions'
+import { getExam, getActiveExam, saveAnswer, submitAnswer, toggleFlag, finishExam, pauseExam, resumeExam } from '~/storage'
 import { getQuestions } from '~/data/questions'
-import type { Question, ExamVersion } from '~/data/questions'
+import type { ExamVersion } from '~/data/questions'
 import { ConfirmModal } from '~/components/ConfirmModal'
 import { Explanation } from '~/components/Explanation'
 
@@ -15,10 +15,10 @@ export const Route = createFileRoute('/exam')({
     const examId = deps.id
     if (!examId || isNaN(examId)) {
       const active = await getActiveExam()
-      if (active) return getExam({ data: { examId: active.id } })
+      if (active) return getExam(active.id)
       return null
     }
-    return getExam({ data: { examId } })
+    return getExam(examId)
   },
   component: ExamPage,
 })
@@ -32,7 +32,6 @@ interface AnswerState {
 
 function ExamPage() {
   const data = Route.useLoaderData()
-  const search = Route.useSearch()
   const navigate = useNavigate()
 
   if (!data) {
@@ -99,7 +98,7 @@ function ExamPage() {
   const handlePause = useCallback(async () => {
     setPaused(true)
     setPausedAtMs(Date.now())
-    await pauseExam({ data: { examId } })
+    await pauseExam(examId)
   }, [examId])
 
   const handleResume = useCallback(async () => {
@@ -109,7 +108,7 @@ function ExamPage() {
     setPausedSecs(newPausedSecs)
     setPausedAtMs(0)
     setElapsed(Math.floor((Date.now() - examStartMs) / 1000) - newPausedSecs)
-    await resumeExam({ data: { examId } })
+    await resumeExam(examId)
   }, [examId, pausedAtMs, pausedSecs, examStartMs])
 
   const q = questions[currentQ]
@@ -128,16 +127,14 @@ function ExamPage() {
       } else {
         newSelected = [letter]
       }
-      saveAnswer({ data: { examId, questionId: q.id, selectedAnswers: newSelected } })
+      saveAnswer(examId, q.id, newSelected)
       return { ...prev, [q.id]: { ...current, selected: newSelected } }
     })
   }, [q.id, q.multi, ans.submitted, examId])
 
   const handleSubmit = useCallback(async () => {
     if (ans.selected.length === 0) return
-    const result = await submitAnswer({
-      data: { examId, questionId: q.id, selectedAnswers: ans.selected, version },
-    })
+    const result = await submitAnswer(examId, q.id, ans.selected, version)
     setAnswerMap((prev) => ({
       ...prev,
       [q.id]: { ...prev[q.id], submitted: true, isCorrect: result.isCorrect },
@@ -150,11 +147,11 @@ function ExamPage() {
       ...prev,
       [q.id]: { ...prev[q.id], flagged: newFlagged },
     }))
-    await toggleFlag({ data: { examId, questionId: q.id, flagged: newFlagged } })
+    await toggleFlag(examId, q.id, newFlagged)
   }, [q.id, ans.flagged, examId])
 
   const handleFinish = async () => {
-    await finishExam({ data: { examId, timeSpentSeconds: elapsed } })
+    await finishExam(examId, elapsed)
     navigate({ to: '/results/$id', params: { id: String(examId) } })
   }
 
@@ -221,7 +218,6 @@ function ExamPage() {
       </div>
 
       <div className={`mb-4 ${ans.submitted ? 'flex flex-col xl:flex-row gap-4 xl:items-start' : ''}`}>
-        {/* Question + Options card */}
         <div className={`card ${ans.submitted ? 'xl:flex-1 xl:min-w-0' : ''}`}>
           <div className="mb-4 flex items-center justify-between">
             <span className="domain-tag">{q.domainName}</span>
@@ -285,7 +281,6 @@ function ExamPage() {
           </div>
         </div>
 
-        {/* Explanation panel — side-by-side on xl screens */}
         {ans.submitted && (
           <div className="xl:w-[420px] xl:shrink-0 xl:sticky xl:top-20">
             <Explanation html={q.explanation} isCorrect={ans.isCorrect} />

@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { getExam } from '~/server/functions'
+import { getExam } from '~/storage'
 import { getQuestions } from '~/data/questions'
 import type { ExamVersion } from '~/data/questions'
 
 export const Route = createFileRoute('/results/$id')({
   loader: async ({ params }) => {
-    return getExam({ data: { examId: Number(params.id) } })
+    return getExam(Number(params.id))
   },
   component: ResultsPage,
 })

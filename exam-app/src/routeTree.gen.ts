@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ExamRouteImport } from './routes/exam'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReviewIdRouteImport } from './routes/review.$id'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
+import { Route as DocsSlugRouteImport } from './routes/docs.$slug'
 
 const ExamRoute = ExamRouteImport.update({
   id: '/exam',
   path: '/exam',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,36 +41,61 @@ const ResultsIdRoute = ResultsIdRouteImport.update({
   path: '/results/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocsSlugRoute = DocsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => DocsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/docs': typeof DocsRouteWithChildren
   '/exam': typeof ExamRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/results/$id': typeof ResultsIdRoute
   '/review/$id': typeof ReviewIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/docs': typeof DocsRouteWithChildren
   '/exam': typeof ExamRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/results/$id': typeof ResultsIdRoute
   '/review/$id': typeof ReviewIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/docs': typeof DocsRouteWithChildren
   '/exam': typeof ExamRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/results/$id': typeof ResultsIdRoute
   '/review/$id': typeof ReviewIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exam' | '/results/$id' | '/review/$id'
+  fullPaths:
+    | '/'
+    | '/docs'
+    | '/exam'
+    | '/docs/$slug'
+    | '/results/$id'
+    | '/review/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exam' | '/results/$id' | '/review/$id'
-  id: '__root__' | '/' | '/exam' | '/results/$id' | '/review/$id'
+  to: '/' | '/docs' | '/exam' | '/docs/$slug' | '/results/$id' | '/review/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/docs'
+    | '/exam'
+    | '/docs/$slug'
+    | '/results/$id'
+    | '/review/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DocsRoute: typeof DocsRouteWithChildren
   ExamRoute: typeof ExamRoute
   ResultsIdRoute: typeof ResultsIdRoute
   ReviewIdRoute: typeof ReviewIdRoute
@@ -76,6 +108,13 @@ declare module '@tanstack/react-router' {
       path: '/exam'
       fullPath: '/exam'
       preLoaderRoute: typeof ExamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -99,11 +138,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs/$slug': {
+      id: '/docs/$slug'
+      path: '/$slug'
+      fullPath: '/docs/$slug'
+      preLoaderRoute: typeof DocsSlugRouteImport
+      parentRoute: typeof DocsRoute
+    }
   }
 }
 
+interface DocsRouteChildren {
+  DocsSlugRoute: typeof DocsSlugRoute
+}
+
+const DocsRouteChildren: DocsRouteChildren = {
+  DocsSlugRoute: DocsSlugRoute,
+}
+
+const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DocsRoute: DocsRouteWithChildren,
   ExamRoute: ExamRoute,
   ResultsIdRoute: ResultsIdRoute,
   ReviewIdRoute: ReviewIdRoute,
@@ -111,12 +168,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

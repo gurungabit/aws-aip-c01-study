@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { getExam } from '~/server/functions'
+import { getExam } from '~/storage'
 import { getQuestions } from '~/data/questions'
 import type { ExamVersion } from '~/data/questions'
 import { Explanation } from '~/components/Explanation'
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/review/$id')({
     filter: ((search.filter as string) || 'all') as string | undefined,
   }),
   loader: async ({ params }) => {
-    return getExam({ data: { examId: Number(params.id) } })
+    return getExam(Number(params.id))
   },
   component: ReviewPage,
 })

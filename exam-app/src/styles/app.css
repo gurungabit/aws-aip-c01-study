@@ -154,3 +154,81 @@
     cursor: not-allowed;
   }
 }
+
+/* Markdown document viewer */
+@layer components {
+  .markdown-content {
+    @apply text-sm leading-relaxed text-txt-2;
+  }
+  .markdown-content h1 {
+    @apply mb-4 mt-0 text-2xl font-bold text-accent;
+    font-family: var(--font-heading);
+  }
+  .markdown-content h2 {
+    @apply mb-3 mt-8 text-xl font-semibold text-txt border-b border-accent-border pb-2;
+    font-family: var(--font-heading);
+  }
+  .markdown-content h3 {
+    @apply mb-2 mt-6 text-base font-semibold text-txt;
+    font-family: var(--font-heading);
+  }
+  .markdown-content h4 {
+    @apply mb-2 mt-4 text-sm font-semibold text-accent;
+    font-family: var(--font-heading);
+  }
+  .markdown-content p {
+    @apply mb-4 last:mb-0;
+  }
+  .markdown-content ul {
+    @apply mb-4 list-disc space-y-1 pl-6;
+  }
+  .markdown-content ol {
+    @apply mb-4 list-decimal space-y-1 pl-6;
+  }
+  .markdown-content li {
+    @apply text-txt-2;
+  }
+  .markdown-content li > ul,
+  .markdown-content li > ol {
+    @apply mt-1 mb-0;
+  }
+  .markdown-content strong {
+    @apply font-semibold text-txt;
+  }
+  .markdown-content em {
+    @apply italic text-txt-2;
+  }
+  .markdown-content code {
+    @apply rounded px-1.5 py-0.5 text-xs font-mono text-accent;
+    background: var(--color-accent-dim);
+    border: 1px solid var(--color-accent-border);
+  }
+  .markdown-content pre {
+    @apply mb-4 overflow-x-auto rounded-xl border border-accent-border bg-surface p-4;
+  }
+  .markdown-content pre code {
+    @apply border-0 bg-transparent p-0 text-xs text-txt-2;
+  }
+  .markdown-content blockquote {
+    @apply mb-4 rounded-r-xl border-l-2 border-accent pl-4 py-1 text-txt-3 italic;
+    background: var(--color-accent-dim);
+  }
+  .markdown-content table {
+    @apply mb-4 w-full border-collapse text-sm;
+  }
+  .markdown-content th {
+    @apply border border-accent-border bg-surface-2 px-3 py-2 text-left text-xs font-semibold text-accent;
+  }
+  .markdown-content td {
+    @apply border border-accent-border px-3 py-2 text-txt-2;
+  }
+  .markdown-content tr:nth-child(even) td {
+    background: var(--color-accent-dim);
+  }
+  .markdown-content a {
+    @apply text-accent underline underline-offset-2 hover:text-accent-hover;
+  }
+  .markdown-content hr {
+    @apply my-6 border-accent-border;
+  }
+}
