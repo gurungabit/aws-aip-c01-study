@@ -10,7 +10,7 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-accent-border bg-base/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-accent-border bg-bg/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to="/" className="font-heading text-lg font-bold text-accent hover:text-accent-hover transition-colors">
             AWS AIP-C01

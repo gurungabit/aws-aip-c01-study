@@ -47,7 +47,7 @@ export function Explanation({ html, isCorrect }: { html: string; isCorrect: bool
             {wrongParts.map((p, i) => {
               const letter = getLetter(p)
               return (
-                <li key={i} className="flex gap-3 rounded-xl bg-base/50 px-4 py-2.5 border border-accent-border/20">
+                <li key={i} className="flex gap-3 rounded-xl bg-bg/50 px-4 py-2.5 border border-accent-border/20">
                   {letter && (
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bad-dim text-xs font-bold text-bad mt-0.5">
                       {letter}

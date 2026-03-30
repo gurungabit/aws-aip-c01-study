@@ -276,11 +276,11 @@ function ExamPage() {
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                       ans.submitted && q.correct.includes(opt.letter)
-                        ? 'bg-ok text-base'
+                        ? 'bg-ok text-bg'
                         : ans.submitted && ans.selected.includes(opt.letter)
-                          ? 'bg-bad text-base'
+                          ? 'bg-bad text-bg'
                           : ans.selected.includes(opt.letter)
-                            ? 'bg-accent text-base'
+                            ? 'bg-accent text-bg'
                             : 'bg-surface-2 text-txt-2'
                     }`}
                   >
@@ -300,7 +300,7 @@ function ExamPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-accent-border bg-base/95 backdrop-blur-sm px-4 py-3 sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:px-0 sm:py-0">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-accent-border bg-bg/95 backdrop-blur-sm px-4 py-3 sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:px-0 sm:py-0">
         <div className="flex items-center justify-between gap-2">
           <button onClick={prev} disabled={currentQ === 0} className="btn-secondary min-w-0 px-3 py-2 text-xs sm:px-4 sm:py-2 sm:text-sm">
             Prev
@@ -335,7 +335,7 @@ function ExamPage() {
       />
 
       {paused && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-base/90 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/90 backdrop-blur-sm">
           <div className="card max-w-sm text-center animate-in">
             <div className="mb-4 text-5xl">⏸</div>
             <h2 className="mb-2 text-xl font-bold text-txt">Exam Paused</h2>

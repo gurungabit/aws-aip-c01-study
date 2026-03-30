@@ -77,7 +77,7 @@ function ReviewPage() {
             onClick={() => { setFilter(f.key); setCurrentIdx(0) }}
             className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
               filter === f.key
-                ? 'bg-accent text-base'
+                ? 'bg-accent text-bg'
                 : 'bg-surface-2 text-txt-2 hover:bg-surface-3'
             }`}
           >
@@ -143,9 +143,9 @@ function ReviewPage() {
                     <span
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                         isCorrect
-                          ? 'bg-ok text-base'
+                          ? 'bg-ok text-bg'
                           : wasSelected
-                            ? 'bg-bad text-base'
+                            ? 'bg-bad text-bg'
                             : 'bg-surface-2 text-txt-2'
                       }`}
                     >

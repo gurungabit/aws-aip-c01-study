@@ -310,7 +310,7 @@ function Dashboard() {
                   onClick={() => setSelectedVersion(v)}
                   className={`rounded-xl px-5 py-3 text-sm font-semibold transition-all cursor-pointer ${
                     selectedVersion === v
-                      ? "bg-accent text-base shadow-lg shadow-accent/20 scale-105"
+                      ? "bg-accent text-bg shadow-lg shadow-accent/20 scale-105"
                       : "bg-surface-2 text-txt-2 hover:bg-surface-3 hover:text-txt"
                   }`}
                 >
@@ -324,7 +324,7 @@ function Dashboard() {
             {Object.entries(DOMAIN_NAMES).map(([domain, name]) => (
               <div
                 key={domain}
-                className="rounded-xl border border-accent-border bg-base px-3 py-2 text-left"
+                className="rounded-xl border border-accent-border bg-bg px-3 py-2 text-left"
               >
                 <span className="text-xs font-semibold text-accent">
                   {domain} ({DOMAIN_WEIGHTS[domain]})
