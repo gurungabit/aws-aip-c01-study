@@ -303,7 +303,7 @@ function Dashboard() {
 
           <div className="mb-6">
             <p className="mb-3 text-sm text-txt-2">Select Exam Version</p>
-            <div className="flex justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {VERSIONS.map((v) => (
                 <button
                   key={v}

@@ -231,4 +231,13 @@
   .markdown-content hr {
     @apply my-6 border-accent-border;
   }
+
+  /* Mermaid diagrams */
+  .mermaid-diagram {
+    @apply mb-4 overflow-x-auto rounded-xl border border-accent-border bg-surface p-4;
+  }
+  .mermaid-diagram svg {
+    @apply mx-auto max-w-full;
+    height: auto;
+  }
 }
