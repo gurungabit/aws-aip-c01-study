@@ -190,7 +190,7 @@ function Dashboard() {
         </h1>
         <p className="text-txt-2">Generative AI Developer - Professional</p>
         <p className="mt-1 text-sm text-txt-3">
-          5 exam versions &bull; 75 questions each &bull; 180 minutes &bull;
+          6 exam versions &bull; 75 questions each &bull; 180 minutes &bull;
           750/1000 to pass
         </p>
       </div>
