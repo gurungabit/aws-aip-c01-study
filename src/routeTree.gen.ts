@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DocsIndexRouteImport } from './routes/docs.index'
 import { Route as ReviewIdRouteImport } from './routes/review.$id'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as DocsSlugRouteImport } from './routes/docs.$slug'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsRoute,
 } as any)
 const ReviewIdRoute = ReviewIdRouteImport.update({
   id: '/review/$id',
@@ -54,14 +60,15 @@ export interface FileRoutesByFullPath {
   '/docs/$slug': typeof DocsSlugRoute
   '/results/$id': typeof ResultsIdRoute
   '/review/$id': typeof ReviewIdRoute
+  '/docs/': typeof DocsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/docs': typeof DocsRouteWithChildren
   '/exam': typeof ExamRoute
   '/docs/$slug': typeof DocsSlugRoute
   '/results/$id': typeof ResultsIdRoute
   '/review/$id': typeof ReviewIdRoute
+  '/docs': typeof DocsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +78,7 @@ export interface FileRoutesById {
   '/docs/$slug': typeof DocsSlugRoute
   '/results/$id': typeof ResultsIdRoute
   '/review/$id': typeof ReviewIdRoute
+  '/docs/': typeof DocsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +89,9 @@ export interface FileRouteTypes {
     | '/docs/$slug'
     | '/results/$id'
     | '/review/$id'
+    | '/docs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/docs' | '/exam' | '/docs/$slug' | '/results/$id' | '/review/$id'
+  to: '/' | '/exam' | '/docs/$slug' | '/results/$id' | '/review/$id' | '/docs'
   id:
     | '__root__'
     | '/'
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/docs/$slug'
     | '/results/$id'
     | '/review/$id'
+    | '/docs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -124,6 +134,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs/': {
+      id: '/docs/'
+      path: '/'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof DocsRoute
+    }
     '/review/$id': {
       id: '/review/$id'
       path: '/review/$id'
@@ -150,10 +167,12 @@ declare module '@tanstack/react-router' {
 
 interface DocsRouteChildren {
   DocsSlugRoute: typeof DocsSlugRoute
+  DocsIndexRoute: typeof DocsIndexRoute
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
   DocsSlugRoute: DocsSlugRoute,
+  DocsIndexRoute: DocsIndexRoute,
 }
 
 const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
