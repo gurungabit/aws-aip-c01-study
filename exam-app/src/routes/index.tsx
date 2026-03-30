@@ -6,6 +6,8 @@ import {
   getActiveExam,
   createExam,
   deleteExam,
+  exportData,
+  importData,
 } from "~/server/functions";
 import { getQuestions, VERSIONS } from "~/data/questions";
 import type { ExamVersion } from "~/data/questions";
@@ -116,6 +118,31 @@ function Dashboard() {
         window.location.reload();
       },
     );
+  };
+
+  const handleExport = async () => {
+    const data = await exportData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `aip-c01-exams-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const json = await file.text();
+    try {
+      const result = await importData({ data: { json } });
+      alert(`Imported ${result.imported} exam(s). ${result.skipped} skipped (duplicates).`);
+      window.location.reload();
+    } catch (err: any) {
+      alert(`Import failed: ${err.message}`);
+    }
+    e.target.value = '';
   };
 
   const questions = getQuestions(selectedVersion);
@@ -301,12 +328,21 @@ function Dashboard() {
         <div className="card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-txt">Exam History</h2>
-            <button
-              onClick={handleClearAll}
-              className="btn-secondary text-xs text-bad border-bad-border hover:bg-bad-dim"
-            >
-              Clear All History
-            </button>
+            <div className="flex gap-2">
+              <button onClick={handleExport} className="btn-secondary text-xs">
+                Export
+              </button>
+              <label className="btn-secondary text-xs cursor-pointer">
+                Import
+                <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+              </label>
+              <button
+                onClick={handleClearAll}
+                className="btn-secondary text-xs text-bad border-bad-border hover:bg-bad-dim"
+              >
+                Clear All
+              </button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

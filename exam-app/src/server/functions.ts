@@ -220,3 +220,60 @@ export const deleteExam = createServerFn({ method: 'POST' })
     await db.delete(examAnswers).where(eq(examAnswers.examId, data.examId))
     await db.delete(exams).where(eq(exams.id, data.examId))
   })
+
+export const exportData = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const allExams = await db.query.exams.findMany()
+    const allAnswers = await db.query.examAnswers.findMany()
+    return { version: 1, exportedAt: new Date().toISOString(), exams: allExams, answers: allAnswers }
+  },
+)
+
+export const importData = createServerFn({ method: 'POST' })
+  .inputValidator((d: { json: string }) => d)
+  .handler(async ({ data }) => {
+    const parsed = JSON.parse(data.json) as {
+      exams: (typeof exams.$inferSelect)[]
+      answers: (typeof examAnswers.$inferSelect)[]
+    }
+
+    if (!parsed.exams?.length) throw new Error('No exam data found in file')
+
+    // Get existing exam IDs to avoid duplicates (match on startedAt + version)
+    const existing = await db.query.exams.findMany()
+    const existingKeys = new Set(existing.map((e) => `${e.startedAt}_${e.version}`))
+
+    let imported = 0
+    for (const exam of parsed.exams) {
+      const key = `${exam.startedAt}_${exam.version}`
+      if (existingKeys.has(key)) continue // skip duplicate
+
+      const [newExam] = await db.insert(exams).values({
+        version: exam.version ?? 1,
+        startedAt: exam.startedAt,
+        finishedAt: exam.finishedAt,
+        totalQuestions: exam.totalQuestions,
+        correctCount: exam.correctCount,
+        scaledScore: exam.scaledScore,
+        timeSpentSeconds: exam.timeSpentSeconds,
+      }).returning()
+
+      const examAnswerRows = parsed.answers
+        .filter((a) => a.examId === exam.id)
+        .map((a) => ({
+          examId: newExam.id,
+          questionId: a.questionId,
+          selectedAnswers: a.selectedAnswers,
+          isCorrect: a.isCorrect,
+          submitted: a.submitted,
+          flagged: a.flagged,
+        }))
+
+      if (examAnswerRows.length > 0) {
+        await db.insert(examAnswers).values(examAnswerRows)
+      }
+      imported++
+    }
+
+    return { imported, skipped: parsed.exams.length - imported }
+  })
