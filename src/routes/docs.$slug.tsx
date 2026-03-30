@@ -69,6 +69,27 @@ function DocPage() {
     }
   }, [html])
 
+  // Intercept anchor (#section) clicks so they scroll instead of
+  // confusing the hash router into navigating to the homepage.
+  useEffect(() => {
+    const article = articleRef.current
+    if (!article) return
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const anchor = target.closest('a')
+      if (!anchor) return
+      const href = anchor.getAttribute('href')
+      if (!href?.startsWith('#')) return
+      e.preventDefault()
+      const el = document.getElementById(href.slice(1))
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    article.addEventListener('click', handleClick)
+    return () => article.removeEventListener('click', handleClick)
+  }, [html])
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center gap-2 text-sm text-txt-3">
