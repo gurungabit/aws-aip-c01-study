@@ -1,9 +1,13 @@
 node_modules
+dist
+yarn.lock
 *.db
 .DS_Store
 .env
+.vercel
 .cache
 .tanstack
 .output
 .nitro
 .devcontainer
+.env.sentry-build-plugin
