@@ -108,7 +108,7 @@
   }
 
   .card {
-    @apply rounded-2xl border border-accent-border bg-surface p-6;
+    @apply rounded-2xl border border-accent-border bg-surface p-4 sm:p-6;
   }
 
   .domain-tag {

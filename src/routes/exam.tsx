@@ -63,6 +63,7 @@ function ExamPage() {
     return map
   })
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showNav, setShowNav] = useState(false)
   const [paused, setPaused] = useState(!!exam.pausedAt)
   const [pausedSecs, setPausedSecs] = useState(exam.pausedSeconds ?? 0)
   const [pausedAtMs, setPausedAtMs] = useState(exam.pausedAt ? new Date(exam.pausedAt).getTime() : 0)
@@ -163,8 +164,8 @@ function ExamPage() {
   const correctCount = Object.values(answerMap).filter((a) => a.submitted && a.isCorrect).length
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between text-sm">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:py-6 pb-24 sm:pb-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm">
         <span className="text-txt-2">
           <span className="rounded-full bg-accent-dim px-2 py-0.5 text-xs font-medium text-accent mr-2">V{version}</span>
           Score: {correctCount}/{submittedCount} answered
@@ -199,22 +200,33 @@ function ExamPage() {
         />
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-1 justify-center">
-        {questions.map((qq, i) => {
-          const a = answerMap[qq.id]
-          let cls = 'w-7 h-7 rounded-lg text-xs flex items-center justify-center cursor-pointer transition-all border '
-          if (i === currentQ) cls += 'border-accent text-accent font-bold bg-accent-dim '
-          else if (a?.submitted && a.isCorrect) cls += 'border-ok-border bg-ok-dim text-ok '
-          else if (a?.submitted && !a.isCorrect) cls += 'border-bad-border bg-bad-dim text-bad '
-          else if (a?.flagged) cls += 'border-warn-border bg-warn-dim text-warn '
-          else if (a?.selected.length) cls += 'border-accent-border bg-surface-2 text-txt-2 '
-          else cls += 'border-accent-border/50 bg-surface text-txt-3 '
-          return (
-            <button key={qq.id} className={cls} onClick={() => goTo(i)}>
-              {a?.flagged ? '!' : i + 1}
-            </button>
-          )
-        })}
+      <div className="mb-4">
+        <button
+          onClick={() => setShowNav(!showNav)}
+          className="mb-2 flex w-full items-center justify-center gap-1 text-xs text-txt-3 sm:hidden"
+        >
+          <span>Q{currentQ + 1}/{questions.length}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`h-4 w-4 transition-transform ${showNav ? 'rotate-180' : ''}`}>
+            <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+          </svg>
+        </button>
+        <div className={`${showNav ? 'flex' : 'hidden'} sm:flex flex-wrap gap-1 justify-center`}>
+          {questions.map((qq, i) => {
+            const a = answerMap[qq.id]
+            let cls = 'w-7 h-7 rounded-lg text-xs flex items-center justify-center cursor-pointer transition-all border '
+            if (i === currentQ) cls += 'border-accent text-accent font-bold bg-accent-dim '
+            else if (a?.submitted && a.isCorrect) cls += 'border-ok-border bg-ok-dim text-ok '
+            else if (a?.submitted && !a.isCorrect) cls += 'border-bad-border bg-bad-dim text-bad '
+            else if (a?.flagged) cls += 'border-warn-border bg-warn-dim text-warn '
+            else if (a?.selected.length) cls += 'border-accent-border bg-surface-2 text-txt-2 '
+            else cls += 'border-accent-border/50 bg-surface text-txt-3 '
+            return (
+              <button key={qq.id} className={cls} onClick={() => { goTo(i); setShowNav(false) }}>
+                {a?.flagged ? '!' : i + 1}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div className={`mb-4 ${ans.submitted ? 'flex flex-col xl:flex-row gap-4 xl:items-start' : ''}`}>
@@ -237,7 +249,7 @@ function ExamPage() {
             </div>
           </div>
 
-          <p className="mb-6 whitespace-pre-line text-base leading-relaxed text-txt">
+          <p className="mb-4 sm:mb-6 whitespace-pre-line text-sm sm:text-base leading-relaxed text-txt">
             {q.text}
           </p>
 
@@ -288,26 +300,28 @@ function ExamPage() {
         )}
       </div>
 
-      <div className="flex items-center justify-between">
-        <button onClick={prev} disabled={currentQ === 0} className="btn-secondary">
-          Previous
-        </button>
-        <div className="flex gap-2">
-          {!ans.submitted && (
-            <button onClick={handleSubmit} disabled={ans.selected.length === 0} className="btn-primary text-sm">
-              Submit Answer
-            </button>
-          )}
-          {ans.submitted && currentQ < questions.length - 1 && (
-            <button onClick={next} className="btn-primary text-sm">Next Question</button>
-          )}
-          {!ans.submitted && currentQ < questions.length - 1 && (
-            <button onClick={next} className="btn-secondary">Skip</button>
-          )}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-accent-border bg-base/95 backdrop-blur-sm px-4 py-3 sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:px-0 sm:py-0">
+        <div className="flex items-center justify-between gap-2">
+          <button onClick={prev} disabled={currentQ === 0} className="btn-secondary min-w-0 px-3 py-2 text-xs sm:px-4 sm:py-2 sm:text-sm">
+            Prev
+          </button>
+          <div className="flex gap-2">
+            {!ans.submitted && (
+              <button onClick={handleSubmit} disabled={ans.selected.length === 0} className="btn-primary px-3 py-2 text-xs sm:px-6 sm:py-3 sm:text-sm">
+                Submit
+              </button>
+            )}
+            {ans.submitted && currentQ < questions.length - 1 && (
+              <button onClick={next} className="btn-primary px-3 py-2 text-xs sm:px-6 sm:py-3 sm:text-sm">Next</button>
+            )}
+            {!ans.submitted && currentQ < questions.length - 1 && (
+              <button onClick={next} className="btn-secondary px-3 py-2 text-xs sm:px-4 sm:py-2 sm:text-sm">Skip</button>
+            )}
+          </div>
+          <button onClick={() => setShowConfirm(true)} className="btn-secondary text-bad border-bad-border px-3 py-2 text-xs sm:px-4 sm:py-2 sm:text-sm">
+            Finish
+          </button>
         </div>
-        <button onClick={() => setShowConfirm(true)} className="btn-secondary text-bad border-bad-border">
-          Finish
-        </button>
       </div>
 
       <ConfirmModal
