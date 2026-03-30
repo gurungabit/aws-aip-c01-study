@@ -51,6 +51,8 @@ function Dashboard() {
     title: string;
     message: string;
     confirmLabel: string;
+    danger?: boolean;
+    hideCancel?: boolean;
     onConfirm: () => void;
   }>({
     open: false,
@@ -66,7 +68,7 @@ function Dashboard() {
     confirmLabel: string,
     onConfirm: () => void,
   ) => {
-    setConfirmState({ open: true, title, message, confirmLabel, onConfirm });
+    setConfirmState({ open: true, title, message, confirmLabel, danger: true, hideCancel: false, onConfirm });
   };
 
   const handleStartExam = async () => {
@@ -137,10 +139,25 @@ function Dashboard() {
     const json = await file.text();
     try {
       const result = await importData({ data: { json } });
-      alert(`Imported ${result.imported} exam(s). ${result.skipped} skipped (duplicates).`);
-      window.location.reload();
+      setConfirmState({
+        open: true,
+        title: 'Import Complete',
+        message: `Imported ${result.imported} exam(s).${result.skipped > 0 ? `\n${result.skipped} skipped (duplicates).` : ''}`,
+        confirmLabel: 'OK',
+        danger: false,
+        hideCancel: true,
+        onConfirm: () => { setConfirmState((s) => ({ ...s, open: false })); window.location.reload(); },
+      });
     } catch (err: any) {
-      alert(`Import failed: ${err.message}`);
+      setConfirmState({
+        open: true,
+        title: 'Import Failed',
+        message: err.message || 'Could not parse the file.',
+        confirmLabel: 'OK',
+        danger: true,
+        hideCancel: true,
+        onConfirm: () => setConfirmState((s) => ({ ...s, open: false })),
+      });
     }
     e.target.value = '';
   };
@@ -158,7 +175,8 @@ function Dashboard() {
         title={confirmState.title}
         message={confirmState.message}
         confirmLabel={confirmState.confirmLabel}
-        danger
+        danger={confirmState.danger}
+        hideCancel={confirmState.hideCancel}
         onConfirm={() => {
           confirmState.onConfirm();
           setConfirmState((s) => ({ ...s, open: false }));

@@ -7,8 +7,9 @@ interface ConfirmModalProps {
   confirmLabel?: string
   cancelLabel?: string
   danger?: boolean
+  hideCancel?: boolean
   onConfirm: () => void
-  onCancel: () => void
+  onCancel?: () => void
 }
 
 export function ConfirmModal({
@@ -18,9 +19,11 @@ export function ConfirmModal({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   danger = false,
+  hideCancel = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const dismiss = onCancel ?? onConfirm
   const confirmRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -30,18 +33,18 @@ export function ConfirmModal({
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel()
+      if (e.key === 'Escape') dismiss()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [open, onCancel])
+  }, [open, dismiss])
 
   if (!open) return null
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={onCancel}
+      onClick={dismiss}
     >
       <div
         className="card mx-4 max-w-md w-full text-center animate-in"
@@ -50,9 +53,11 @@ export function ConfirmModal({
         <h3 className="mb-2 text-lg font-semibold text-txt">{title}</h3>
         <p className="mb-6 text-sm text-txt-2 whitespace-pre-line">{message}</p>
         <div className="flex justify-center gap-3">
-          <button onClick={onCancel} className="btn-secondary">
-            {cancelLabel}
-          </button>
+          {!hideCancel && (
+            <button onClick={dismiss} className="btn-secondary">
+              {cancelLabel}
+            </button>
+          )}
           <button
             ref={confirmRef}
             onClick={onConfirm}
