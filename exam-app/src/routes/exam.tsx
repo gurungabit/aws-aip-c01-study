@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useState, useEffect, useCallback } from 'react'
-import { getExam, getActiveExam, saveAnswer, submitAnswer, toggleFlag, finishExam } from '~/server/functions'
+import { getExam, getActiveExam, saveAnswer, submitAnswer, toggleFlag, finishExam, pauseExam, resumeExam } from '~/server/functions'
 import { getQuestions } from '~/data/questions'
 import type { Question, ExamVersion } from '~/data/questions'
 import { ConfirmModal } from '~/components/ConfirmModal'
@@ -64,19 +64,27 @@ function ExamPage() {
     return map
   })
   const [showConfirm, setShowConfirm] = useState(false)
+  const [paused, setPaused] = useState(!!exam.pausedAt)
+  const [pausedSecs, setPausedSecs] = useState(exam.pausedSeconds ?? 0)
+  const [pausedAtMs, setPausedAtMs] = useState(exam.pausedAt ? new Date(exam.pausedAt).getTime() : 0)
 
   const TOTAL_SECONDS = 180 * 60
   const examStartMs = new Date(exam.startedAt).getTime()
 
-  const getElapsed = () => Math.floor((Date.now() - examStartMs) / 1000)
-  const [elapsed, setElapsed] = useState(getElapsed)
+  const getEffectiveElapsed = () => {
+    const wallElapsed = Math.floor((Date.now() - examStartMs) / 1000)
+    const currentPauseDuration = paused && pausedAtMs ? Math.floor((Date.now() - pausedAtMs) / 1000) : 0
+    return wallElapsed - pausedSecs - currentPauseDuration
+  }
+  const [elapsed, setElapsed] = useState(getEffectiveElapsed)
 
   useEffect(() => {
+    if (paused) return
     const interval = setInterval(() => {
-      setElapsed(getElapsed())
+      setElapsed(getEffectiveElapsed())
     }, 1000)
     return () => clearInterval(interval)
-  }, [examStartMs])
+  }, [examStartMs, paused, pausedSecs, pausedAtMs])
 
   const remaining = Math.max(0, TOTAL_SECONDS - elapsed)
   const hours = Math.floor(remaining / 3600)
@@ -85,8 +93,24 @@ function ExamPage() {
   const timerStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 
   useEffect(() => {
-    if (remaining <= 0) handleFinish()
-  }, [remaining])
+    if (remaining <= 0 && !paused) handleFinish()
+  }, [remaining, paused])
+
+  const handlePause = useCallback(async () => {
+    setPaused(true)
+    setPausedAtMs(Date.now())
+    await pauseExam({ data: { examId } })
+  }, [examId])
+
+  const handleResume = useCallback(async () => {
+    const addedPause = pausedAtMs ? Math.floor((Date.now() - pausedAtMs) / 1000) : 0
+    const newPausedSecs = pausedSecs + addedPause
+    setPaused(false)
+    setPausedSecs(newPausedSecs)
+    setPausedAtMs(0)
+    setElapsed(Math.floor((Date.now() - examStartMs) / 1000) - newPausedSecs)
+    await resumeExam({ data: { examId } })
+  }, [examId, pausedAtMs, pausedSecs, examStartMs])
 
   const q = questions[currentQ]
   const ans = answerMap[q.id] || { selected: [], submitted: false, isCorrect: false, flagged: false }
@@ -148,9 +172,27 @@ function ExamPage() {
           <span className="rounded-full bg-accent-dim px-2 py-0.5 text-xs font-medium text-accent mr-2">V{version}</span>
           Score: {correctCount}/{submittedCount} answered
         </span>
-        <span className={`font-mono text-lg ${remaining < 600 ? 'text-bad' : 'text-info'}`}>
-          {timerStr}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={paused ? handleResume : handlePause}
+            className={`btn-icon ${paused ? 'border-ok-border text-ok hover:bg-ok-dim' : 'text-txt-3 hover:text-warn hover:border-warn-border'}`}
+            title={paused ? 'Resume' : 'Pause'}
+          >
+            {paused ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                <path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                <path d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5ZM12.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z" />
+              </svg>
+            )}
+            {paused ? 'Resume' : 'Pause'}
+          </button>
+          <span className={`font-mono text-lg ${paused ? 'text-warn' : remaining < 600 ? 'text-bad' : 'text-info'}`}>
+            {paused ? `${timerStr} ⏸` : timerStr}
+          </span>
+        </div>
       </div>
 
       <div className="mb-4 h-1 overflow-hidden rounded-full bg-surface-2">
@@ -282,6 +324,20 @@ function ExamPage() {
         onConfirm={handleFinish}
         onCancel={() => setShowConfirm(false)}
       />
+
+      {paused && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-base/90 backdrop-blur-sm">
+          <div className="card max-w-sm text-center animate-in">
+            <div className="mb-4 text-5xl">⏸</div>
+            <h2 className="mb-2 text-xl font-bold text-txt">Exam Paused</h2>
+            <p className="mb-1 text-sm text-txt-2">Time remaining</p>
+            <p className="mb-6 font-mono text-3xl text-warn">{timerStr}</p>
+            <button onClick={handleResume} className="btn-primary px-10 py-3">
+              Resume Exam
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

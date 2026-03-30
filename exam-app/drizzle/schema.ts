@@ -9,6 +9,8 @@ export const exams = sqliteTable('exams', {
   correctCount: integer('correct_count').notNull().default(0),
   scaledScore: integer('scaled_score'),
   timeSpentSeconds: integer('time_spent_seconds'),
+  pausedAt: text('paused_at'),
+  pausedSeconds: integer('paused_seconds').notNull().default(0),
 })
 
 export const examAnswers = sqliteTable('exam_answers', {

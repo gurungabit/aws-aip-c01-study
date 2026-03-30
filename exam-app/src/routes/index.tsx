@@ -203,6 +203,11 @@ function Dashboard() {
               <p className="text-sm text-txt-2">
                 Version {activeExam.version ?? 1} &bull; Started{" "}
                 {new Date(activeExam.startedAt).toLocaleString()}
+                {activeExam.pausedAt && (
+                  <span className="ml-2 rounded-full bg-warn-dim px-2 py-0.5 text-xs font-medium text-warn border border-warn-border">
+                    Paused
+                  </span>
+                )}
               </p>
             </div>
             <div className="flex gap-2">

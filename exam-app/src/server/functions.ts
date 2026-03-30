@@ -205,6 +205,35 @@ export const getExamStats = createServerFn({ method: 'GET' }).handler(
   },
 )
 
+export const pauseExam = createServerFn({ method: 'POST' })
+  .inputValidator((d: { examId: number }) => d)
+  .handler(async ({ data }) => {
+    await db
+      .update(exams)
+      .set({ pausedAt: new Date().toISOString() })
+      .where(eq(exams.id, data.examId))
+  })
+
+export const resumeExam = createServerFn({ method: 'POST' })
+  .inputValidator((d: { examId: number }) => d)
+  .handler(async ({ data }) => {
+    const exam = await db.query.exams.findFirst({
+      where: eq(exams.id, data.examId),
+    })
+    if (!exam || !exam.pausedAt) return
+
+    const pausedDuration = Math.floor(
+      (Date.now() - new Date(exam.pausedAt).getTime()) / 1000,
+    )
+    await db
+      .update(exams)
+      .set({
+        pausedAt: null,
+        pausedSeconds: (exam.pausedSeconds ?? 0) + pausedDuration,
+      })
+      .where(eq(exams.id, data.examId))
+  })
+
 export const getActiveExam = createServerFn({ method: 'GET' }).handler(
   async () => {
     return db.query.exams.findFirst({
@@ -256,6 +285,8 @@ export const importData = createServerFn({ method: 'POST' })
         correctCount: exam.correctCount,
         scaledScore: exam.scaledScore,
         timeSpentSeconds: exam.timeSpentSeconds,
+        pausedAt: exam.pausedAt ?? null,
+        pausedSeconds: exam.pausedSeconds ?? 0,
       }).returning()
 
       const examAnswerRows = parsed.answers
