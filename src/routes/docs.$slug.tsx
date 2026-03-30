@@ -20,36 +20,41 @@ async function renderMermaidDiagrams(container: HTMLElement) {
   const codeBlocks = container.querySelectorAll('pre code.language-mermaid')
   if (codeBlocks.length === 0) return
 
-  const mermaid = (await import('mermaid')).default
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: 'dark',
-    themeVariables: {
-      darkMode: true,
-      background: '#27272a',
-      primaryColor: '#c4b5fd',
-      primaryTextColor: '#fafafa',
-      primaryBorderColor: 'rgba(196, 181, 253, 0.15)',
-      lineColor: '#a1a1aa',
-      secondaryColor: '#3f3f46',
-      tertiaryColor: '#52525b',
-    },
-  })
+  try {
+    const mermaid = (await import('mermaid')).default
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#27272a',
+        primaryColor: '#c4b5fd',
+        primaryTextColor: '#fafafa',
+        primaryBorderColor: 'rgba(196, 181, 253, 0.15)',
+        lineColor: '#a1a1aa',
+        secondaryColor: '#3f3f46',
+        tertiaryColor: '#52525b',
+      },
+    })
 
-  for (const block of codeBlocks) {
-    const pre = block.parentElement
-    if (!pre) continue
-    const source = block.textContent ?? ''
-    const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`
-    try {
-      const { svg } = await mermaid.render(id, source)
-      const wrapper = document.createElement('div')
-      wrapper.className = 'mermaid-diagram'
-      wrapper.innerHTML = svg
-      pre.replaceWith(wrapper)
-    } catch {
-      // leave the code block as-is if rendering fails
+    for (const block of codeBlocks) {
+      const pre = block.parentElement
+      if (!pre) continue
+      const source = block.textContent ?? ''
+      const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`
+      try {
+        const { svg } = await mermaid.render(id, source)
+        const wrapper = document.createElement('div')
+        wrapper.className = 'mermaid-diagram'
+        wrapper.innerHTML = svg
+        pre.replaceWith(wrapper)
+      } catch (err) {
+        console.error('Mermaid render error:', err)
+      }
     }
+  } catch (err) {
+    console.error('Mermaid initialization error:', err)
   }
 }
 
