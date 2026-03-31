@@ -86,13 +86,20 @@ export async function submitAnswer(
   questionId: number,
   selectedAnswers: string[],
   version: number,
+  correctAnswers?: string[],
 ): Promise<{ isCorrect: boolean }> {
-  const v = (version || 1) as ExamVersion
-  const qs = getQuestions(v)
-  const question = qs.find((q) => q.id === questionId)
-  if (!question) throw new Error('Question not found')
+  let correct: string[]
+  if (correctAnswers) {
+    correct = correctAnswers
+  } else {
+    const v = (version || 1) as ExamVersion
+    const qs = getQuestions(v)
+    const question = qs.find((q) => q.id === questionId)
+    if (!question) throw new Error('Question not found')
+    correct = question.correct
+  }
 
-  const correctSet = new Set(question.correct)
+  const correctSet = new Set(correct)
   const selectedSet = new Set(selectedAnswers)
   const isCorrect =
     correctSet.size === selectedSet.size &&
