@@ -4,6 +4,7 @@ import { getExam } from '~/storage'
 import { getQuestions } from '~/data/questions'
 import type { ExamVersion } from '~/data/questions'
 import { Explanation } from '~/components/Explanation'
+import { shuffleQuestions } from '~/utils/shuffle'
 
 export const Route = createFileRoute('/review/$id')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -21,7 +22,7 @@ function ReviewPage() {
   const { id } = Route.useParams()
   const { q: initialQ, filter: initialFilter } = Route.useSearch()
   const version = (exam.version ?? 1) as ExamVersion
-  const questions = getQuestions(version)
+  const questions = shuffleQuestions(getQuestions(version), exam.id)
 
   const [filter, setFilter] = useState(initialFilter ?? 'all')
   const [currentIdx, setCurrentIdx] = useState(initialQ)

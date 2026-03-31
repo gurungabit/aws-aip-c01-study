@@ -5,6 +5,7 @@ import { getQuestions } from '~/data/questions'
 import type { ExamVersion } from '~/data/questions'
 import { ConfirmModal } from '~/components/ConfirmModal'
 import { Explanation } from '~/components/Explanation'
+import { shuffleQuestions } from '~/utils/shuffle'
 
 export const Route = createFileRoute('/exam')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -47,7 +48,7 @@ function ExamPage() {
   const { exam, answers: dbAnswers } = data
   const examId = exam.id
   const version = (exam.version ?? 1) as ExamVersion
-  const questions = getQuestions(version)
+  const questions = shuffleQuestions(getQuestions(version), examId)
 
   const [currentQ, setCurrentQ] = useState(0)
   const [answerMap, setAnswerMap] = useState<Record<number, AnswerState>>(() => {
@@ -135,12 +136,12 @@ function ExamPage() {
 
   const handleSubmit = useCallback(async () => {
     if (ans.selected.length === 0) return
-    const result = await submitAnswer(examId, q.id, ans.selected, version)
+    const result = await submitAnswer(examId, q.id, ans.selected, version, q.correct)
     setAnswerMap((prev) => ({
       ...prev,
       [q.id]: { ...prev[q.id], submitted: true, isCorrect: result.isCorrect },
     }))
-  }, [q.id, ans.selected, examId, version])
+  }, [q.id, ans.selected, examId, version, q.correct])
 
   const handleFlag = useCallback(async () => {
     const newFlagged = !ans.flagged
