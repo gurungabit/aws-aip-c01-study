@@ -258,7 +258,7 @@ function ExamPage() {
           )}
 
           <div className="space-y-2">
-            {q.options.map((opt) => {
+            {[...q.options].sort((a, b) => a.letter.localeCompare(b.letter)).map((opt) => {
               let cls = 'flex items-start gap-3 rounded-xl border-2 p-3 transition-all cursor-pointer '
               if (ans.submitted) {
                 cls += 'cursor-default '

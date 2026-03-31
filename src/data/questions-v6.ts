@@ -15,7 +15,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'The stopSequences parameter contains a newline character. Remove the newline from stopSequences.' }
     ],
     correct: ['A'],
-    explanation: '<strong>B is correct.</strong> When a model\'s response is cut off mid-sentence, the most common cause is that the maxTokens limit for the response has been reached. By default, many Bedrock models have a conservative maxTokens value. Increasing it allows the model to generate a longer, complete summary. <strong>A is wrong</strong> because the context window affects input length, not output truncation — the model would reject the request entirely if input exceeded the context window. <strong>C is wrong</strong> because high temperature causes randomness, not mid-sentence cutoffs. <strong>D is wrong</strong> because stopSequences would need to be explicitly configured to contain a newline; the default does not include one.'
+    explanation: '<strong>A is correct.</strong> When a model\'s response is cut off mid-sentence, the most common cause is that the maxTokens limit for the response has been reached. By default, many Bedrock models have a conservative maxTokens value. Increasing it allows the model to generate a longer, complete summary. <strong>A is wrong</strong> because the context window affects input length, not output truncation — the model would reject the request entirely if input exceeded the context window. <strong>C is wrong</strong> because high temperature causes randomness, not mid-sentence cutoffs. <strong>D is wrong</strong> because stopSequences would need to be explicitly configured to contain a newline; the default does not include one.'
   },
   {
     id: 2,
@@ -45,7 +45,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Re-embed all documents using a larger embedding model dimension size.' }
     ],
     correct: ['C'],
-    explanation: '<strong>B is correct.</strong> Hybrid search combines semantic (vector) search with keyword (lexical) search, improving recall for queries with specific terms like "HIPAA." Adding metadata filtering narrows results to only documents tagged with the relevant regulation_type, eliminating irrelevant results. Amazon Bedrock Knowledge Bases natively supports both hybrid search and metadata filtering. <strong>A is wrong</strong> because switching vector stores does not inherently improve search relevance — the issue is the search strategy, not the database. <strong>C is wrong</strong> because retrieving more chunks increases recall but also increases noise; it does not solve the relevance problem. <strong>D is wrong</strong> because larger embedding dimensions improve representation capacity but do not address the fundamental issue of mixing semantic with keyword search or filtering by metadata.'
+    explanation: '<strong>C is correct.</strong> Hybrid search combines semantic (vector) search with keyword (lexical) search, improving recall for queries with specific terms like "HIPAA." Adding metadata filtering narrows results to only documents tagged with the relevant regulation_type, eliminating irrelevant results. Amazon Bedrock Knowledge Bases natively supports both hybrid search and metadata filtering. <strong>A is wrong</strong> because switching vector stores does not inherently improve search relevance — the issue is the search strategy, not the database. <strong>B is wrong</strong> because retrieving more chunks increases recall but also increases noise; it does not solve the relevance problem. <strong>D is wrong</strong> because larger embedding dimensions improve representation capacity but do not address the fundamental issue of mixing semantic with keyword search or filtering by metadata.'
   },
   {
     id: 4,
@@ -60,7 +60,7 @@ export const questionsV6: Question[] = [
       { letter: 'B', text: 'Embed the metadata as the first line of each document so it gets included in the chunk embeddings.' }
     ],
     correct: ['D'],
-    explanation: '<strong>B is correct.</strong> Amazon Bedrock Knowledge Bases support metadata filtering through companion .metadata.json files stored alongside documents in S3. Each JSON file contains key-value attributes (strings, numbers, booleans) that become filterable fields at query time using the filter parameter in the Retrieve or RetrieveAndGenerate API. <strong>A is wrong</strong> because Bedrock Knowledge Bases do not read S3 object tags as metadata for filtering; the supported mechanism is .metadata.json files. <strong>C is wrong</strong> because Knowledge Bases do not support external metadata joins from DynamoDB at query time. <strong>D is wrong</strong> because embedding metadata in document text pollutes the semantic embeddings and does not enable structured filtering.'
+    explanation: '<strong>D is correct.</strong> Amazon Bedrock Knowledge Bases support metadata filtering through companion .metadata.json files stored alongside documents in S3. Each JSON file contains key-value attributes (strings, numbers, booleans) that become filterable fields at query time using the filter parameter in the Retrieve or RetrieveAndGenerate API. <strong>A is wrong</strong> because Bedrock Knowledge Bases do not read S3 object tags as metadata for filtering; the supported mechanism is .metadata.json files. <strong>C is wrong</strong> because Knowledge Bases do not support external metadata joins from DynamoDB at query time. <strong>B is wrong</strong> because embedding metadata in document text pollutes the semantic embeddings and does not enable structured filtering.'
   },
   {
     id: 5,
@@ -121,7 +121,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use Amazon Bedrock Guardrails to block any response that contains hallucinated content.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Combining RAG (providing the source article as context), low temperature (deterministic output), and explicit system prompt instructions to stay within the provided context is the most effective multi-layered approach to minimizing hallucinations. <strong>B is wrong</strong> because fine-tuning teaches style but does not prevent the model from generating information beyond what is in a specific article at inference time. <strong>C is wrong</strong> because maxTokens controls length and top_p controls diversity — neither specifically addresses factual grounding. <strong>D is wrong</strong> because Guardrails can filter harmful or off-topic content but cannot reliably detect whether specific facts are hallucinated versus present in the source document.'
+    explanation: '<strong>C is correct.</strong> Combining RAG (providing the source article as context), low temperature (deterministic output), and explicit system prompt instructions to stay within the provided context is the most effective multi-layered approach to minimizing hallucinations. <strong>B is wrong</strong> because fine-tuning teaches style but does not prevent the model from generating information beyond what is in a specific article at inference time. <strong>A is wrong</strong> because maxTokens controls length and top_p controls diversity — neither specifically addresses factual grounding. <strong>D is wrong</strong> because Guardrails can filter harmful or off-topic content but cannot reliably detect whether specific facts are hallucinated versus present in the source document.'
   },
   {
     id: 9,
@@ -136,7 +136,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Use Amazon Bedrock model evaluation to score the model\'s understanding of semiconductor terms.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Continued pre-training in Amazon Bedrock accepts unlabeled text data from S3 and adapts the model\'s internal weights to better understand domain-specific vocabulary and concepts. It does not require labeled prompt-completion pairs, making it ideal for this use case. <strong>B is wrong</strong> because fine-tuning requires labeled data in prompt-completion format, which the company does not have. <strong>C is wrong</strong> because Prompt Flows orchestrate multi-step workflows but do not change the model\'s internal understanding of vocabulary. <strong>D is wrong</strong> because model evaluation measures performance but does not improve or customize the model.'
+    explanation: '<strong>D is correct.</strong> Continued pre-training in Amazon Bedrock accepts unlabeled text data from S3 and adapts the model\'s internal weights to better understand domain-specific vocabulary and concepts. It does not require labeled prompt-completion pairs, making it ideal for this use case. <strong>B is wrong</strong> because fine-tuning requires labeled data in prompt-completion format, which the company does not have. <strong>C is wrong</strong> because Prompt Flows orchestrate multi-step workflows but do not change the model\'s internal understanding of vocabulary. <strong>D is wrong</strong> because model evaluation measures performance but does not improve or customize the model.'
   },
   {
     id: 10,
@@ -166,7 +166,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Pre-process all queries to extract IDs and replace them with natural language descriptions before searching.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Hybrid search in Amazon Bedrock Knowledge Bases natively combines semantic (vector) search with keyword (lexical/BM25) search and applies automatic score fusion. This handles both natural language queries and exact term matches in a single retrieval call. <strong>B is wrong</strong> because maintaining two separate pipelines adds complexity, requires query classification logic, and cannot benefit from score fusion. <strong>C is wrong</strong> because metadata filtering only works for pre-defined structured attributes — users would need to provide the exact account number as a filter, not as part of a natural language question. <strong>D is wrong</strong> because automatically extracting and transforming IDs in queries is fragile and introduces another point of failure.'
+    explanation: '<strong>B is correct.</strong> Hybrid search in Amazon Bedrock Knowledge Bases natively combines semantic (vector) search with keyword (lexical/BM25) search and applies automatic score fusion. This handles both natural language queries and exact term matches in a single retrieval call. <strong>A is wrong</strong> because maintaining two separate pipelines adds complexity, requires query classification logic, and cannot benefit from score fusion. <strong>C is wrong</strong> because metadata filtering only works for pre-defined structured attributes — users would need to provide the exact account number as a filter, not as part of a natural language question. <strong>D is wrong</strong> because automatically extracting and transforming IDs in queries is fragile and introduces another point of failure.'
   },
   {
     id: 12,
@@ -181,7 +181,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Concatenate all FAQ documents into a single large document before ingestion.' }
     ],
     correct: ['C'],
-    explanation: '<strong>B is correct.</strong> Amazon Bedrock Knowledge Bases support multiple data sources, each with its own chunking configuration. By creating separate data sources for different document types, the team can apply the optimal chunking strategy per document type within the same Knowledge Base. <strong>A is wrong</strong> because a single fixed chunk size cannot optimally serve both short FAQ documents and long technical manuals. <strong>C is wrong</strong> because increasing the maximum chunk size for semantic chunking does not ensure short documents get larger chunks — semantic chunking splits on meaning boundaries, not size. <strong>D is wrong</strong> because concatenating FAQs destroys document boundaries and creates semantically confusing chunks that mix unrelated topics.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock Knowledge Bases support multiple data sources, each with its own chunking configuration. By creating separate data sources for different document types, the team can apply the optimal chunking strategy per document type within the same Knowledge Base. <strong>A is wrong</strong> because a single fixed chunk size cannot optimally serve both short FAQ documents and long technical manuals. <strong>B is wrong</strong> because increasing the maximum chunk size for semantic chunking does not ensure short documents get larger chunks — semantic chunking splits on meaning boundaries, not size. <strong>D is wrong</strong> because concatenating FAQs destroys document boundaries and creates semantically confusing chunks that mix unrelated topics.'
   },
   {
     id: 13,
@@ -196,7 +196,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'The fine-tuning dataset contained too many examples, causing overfitting to the training data format.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Catastrophic forgetting is a well-known phenomenon where fine-tuning on a narrow domain causes the model to lose previously learned general capabilities. The model becomes specialized for the training distribution and loses broader knowledge. <strong>B is wrong</strong> because fine-tuning does not change the model\'s context window size. <strong>C is wrong</strong> because guardrails are configured separately and are not modified by fine-tuning. <strong>D is wrong</strong> because while overfitting is possible, the described behavior (refusing general questions entirely) is characteristic of catastrophic forgetting, not format overfitting.'
+    explanation: '<strong>D is correct.</strong> Catastrophic forgetting is a well-known phenomenon where fine-tuning on a narrow domain causes the model to lose previously learned general capabilities. The model becomes specialized for the training distribution and loses broader knowledge. <strong>B is wrong</strong> because fine-tuning does not change the model\'s context window size. <strong>C is wrong</strong> because guardrails are configured separately and are not modified by fine-tuning. <strong>D is wrong</strong> because while overfitting is possible, the described behavior (refusing general questions entirely) is characteristic of catastrophic forgetting, not format overfitting.'
   },
   {
     id: 14,
@@ -211,7 +211,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Amazon Titan Image Generator to extract text from diagrams first.' }
     ],
     correct: ['A'],
-    explanation: '<strong>B is correct.</strong> Amazon Titan Multimodal Embeddings G1 can create embeddings from both text and images, making it ideal for documents with technical diagrams. It can embed diagram images alongside their captions, enabling retrieval based on visual content. <strong>A is wrong</strong> because text-only embeddings cannot capture the information in technical diagrams. <strong>C is wrong</strong> because V1 is text-only and older; V2 is preferred for text, but neither handles images. <strong>D is wrong</strong> because Titan Image Generator creates images from text prompts — it does not extract text from existing images.'
+    explanation: '<strong>A is correct.</strong> Amazon Titan Multimodal Embeddings G1 can create embeddings from both text and images, making it ideal for documents with technical diagrams. It can embed diagram images alongside their captions, enabling retrieval based on visual content. <strong>B is wrong</strong> because text-only embeddings cannot capture the information in technical diagrams. <strong>C is wrong</strong> because V1 is text-only and older; V2 is preferred for text, but neither handles images. <strong>D is wrong</strong> because Titan Image Generator creates images from text prompts — it does not extract text from existing images.'
   },
   {
     id: 15,
@@ -226,7 +226,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Copy the training data to an EBS volume attached to a SageMaker notebook. Run training from the notebook.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> SSE-KMS with a customer-managed key satisfies the encryption requirement. Amazon Bedrock model customization (fine-tuning and continued pre-training) processes training data within the same AWS Region and does not move data across Regions, satisfying the data residency requirement. <strong>B is wrong</strong> because Bedrock does not support decrypting client-side encrypted data during training. <strong>C is wrong</strong> because SSE-S3 uses AWS-managed keys, not customer-managed keys, violating the corporate policy. <strong>D is wrong</strong> because this uses SageMaker instead of Bedrock, adds operational complexity, and does not align with the Bedrock model customization workflow.'
+    explanation: '<strong>B is correct.</strong> SSE-KMS with a customer-managed key satisfies the encryption requirement. Amazon Bedrock model customization (fine-tuning and continued pre-training) processes training data within the same AWS Region and does not move data across Regions, satisfying the data residency requirement. <strong>A is wrong</strong> because Bedrock does not support decrypting client-side encrypted data during training. <strong>C is wrong</strong> because SSE-S3 uses AWS-managed keys, not customer-managed keys, violating the corporate policy. <strong>D is wrong</strong> because this uses SageMaker instead of Bedrock, adds operational complexity, and does not align with the Bedrock model customization workflow.'
   },
   {
     id: 16,
@@ -241,7 +241,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use a smaller chunk size to ensure each table cell becomes its own chunk.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Knowledge Bases supports advanced parsing options including a foundation model (FM) parser that can intelligently extract and preserve table structures from PDFs. This ensures tables are kept intact and properly represented in the vector store. <strong>B is wrong</strong> because converting PDFs to plain text destroys table formatting and spatial relationships between cells. <strong>C is wrong</strong> because overlap creates redundancy but does not prevent tables from being split at arbitrary points. <strong>D is wrong</strong> because smaller chunks would split tables into even more fragments, making the problem worse.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock Knowledge Bases supports advanced parsing options including a foundation model (FM) parser that can intelligently extract and preserve table structures from PDFs. This ensures tables are kept intact and properly represented in the vector store. <strong>B is wrong</strong> because converting PDFs to plain text destroys table formatting and spatial relationships between cells. <strong>A is wrong</strong> because overlap creates redundancy but does not prevent tables from being split at arbitrary points. <strong>D is wrong</strong> because smaller chunks would split tables into even more fragments, making the problem worse.'
   },
   {
     id: 17,
@@ -252,12 +252,12 @@ export const questionsV6: Question[] = [
     options: [
       { letter: 'B', text: 'Define an action group with an API schema (OpenAPI) that points to a Lambda function calling the inventory REST API.' },
       { letter: 'C', text: 'Associate the product catalog Knowledge Base with the Bedrock Agent.' },
-      { letter: 'A', text: 'Create a custom orchestration Lambda that calls both the REST API and Knowledge Base sequentially.' },
+      { letter: 'B', text: 'Create a custom orchestration Lambda that calls both the REST API and Knowledge Base sequentially.' },
       { letter: 'D', text: 'Fine-tune the agent\'s underlying model on inventory data so it knows current stock levels.' },
       { letter: 'E', text: 'Store the REST API credentials in the agent\'s system prompt for authentication.' }
     ],
     correct: ['B', 'C'],
-    explanation: '<strong>A is correct.</strong> Bedrock Agents use action groups with OpenAPI schemas to interact with external APIs. A Lambda function serves as the bridge between the agent and the inventory REST API. <strong>B is correct.</strong> Bedrock Agents natively support Knowledge Base associations, allowing the agent to automatically query the product catalog KB when relevant. <strong>C is wrong</strong> because Bedrock Agents handle orchestration automatically — a custom orchestration Lambda is unnecessary. <strong>D is wrong</strong> because fine-tuning embeds static knowledge into model weights and cannot provide real-time inventory data. <strong>E is wrong</strong> because API credentials should never be stored in prompts — they should be managed via Lambda environment variables or AWS Secrets Manager.'
+    explanation: '<strong>B is correct.</strong> Bedrock Agents use action groups with OpenAPI schemas to interact with external APIs. A Lambda function serves as the bridge between the agent and the inventory REST API. <strong>C is correct.</strong> Bedrock Agents natively support Knowledge Base associations, allowing the agent to automatically query the product catalog KB when relevant. <strong>B is wrong</strong> because Bedrock Agents handle orchestration automatically — a custom orchestration Lambda is unnecessary. <strong>D is wrong</strong> because fine-tuning embeds static knowledge into model weights and cannot provide real-time inventory data. <strong>E is wrong</strong> because API credentials should never be stored in prompts — they should be managed via Lambda environment variables or AWS Secrets Manager.'
   },
   {
     id: 18,
@@ -272,7 +272,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Increase the temperature parameter to make the model more creative with Spanish text.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Continued pre-training with the unlabeled Spanish corpus adapts the model\'s weights to better understand Spanish business language and terminology. Combined with few-shot prompting (providing example classifications in the prompt), this effectively extends the model\'s capabilities without requiring labeled data. <strong>B is wrong</strong> because translation adds latency, cost, and can lose nuance — especially for domain-specific business terminology. <strong>C is wrong</strong> because fine-tuning with random labels would teach the model incorrect classifications and degrade performance. <strong>D is wrong</strong> because temperature affects randomness, not language understanding.'
+    explanation: '<strong>D is correct.</strong> Continued pre-training with the unlabeled Spanish corpus adapts the model\'s weights to better understand Spanish business language and terminology. Combined with few-shot prompting (providing example classifications in the prompt), this effectively extends the model\'s capabilities without requiring labeled data. <strong>B is wrong</strong> because translation adds latency, cost, and can lose nuance — especially for domain-specific business terminology. <strong>C is wrong</strong> because fine-tuning with random labels would teach the model incorrect classifications and degrade performance. <strong>D is wrong</strong> because temperature affects randomness, not language understanding.'
   },
   {
     id: 19,
@@ -302,7 +302,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Add a stop sequence of "\\n\\n" to cut off after the first paragraph.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> The maxTokens parameter directly limits the maximum number of tokens in the generated response. Setting it to 150 ensures the model cannot produce responses longer than that, combined with a system prompt requesting brevity for best results. <strong>B is wrong</strong> because temperature controls randomness, not length — a temperature of 0 produces deterministic output that can still be verbose. <strong>C is wrong</strong> because top_p restricts token sampling probability but does not control response length. <strong>D is wrong</strong> because while stop sequences can truncate output, using "\\n\\n" may cut off mid-thought and does not reliably produce the desired punchy style.'
+    explanation: '<strong>B is correct.</strong> The maxTokens parameter directly limits the maximum number of tokens in the generated response. Setting it to 150 ensures the model cannot produce responses longer than that, combined with a system prompt requesting brevity for best results. <strong>A is wrong</strong> because temperature controls randomness, not length — a temperature of 0 produces deterministic output that can still be verbose. <strong>C is wrong</strong> because top_p restricts token sampling probability but does not control response length. <strong>D is wrong</strong> because while stop sequences can truncate output, using "\\n\\n" may cut off mid-thought and does not reliably produce the desired punchy style.'
   },
   {
     id: 21,
@@ -317,7 +317,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Custom LangChain on EC2 — because Bedrock Knowledge Bases does not support OpenSearch as a vector store.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Knowledge Bases is a fully managed service that handles the entire RAG pipeline: document ingestion, chunking, embedding generation, vector storage, and retrieval. This minimizes operational overhead since there are no servers to manage, patch, or scale. <strong>B is wrong</strong> because while LangChain offers flexibility, the question prioritizes minimal operational overhead, which a managed service provides. <strong>C is wrong</strong> because the primary advantage is operational simplicity, not necessarily cost per query. <strong>D is wrong</strong> because Bedrock Knowledge Bases does support OpenSearch Serverless as a vector store.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock Knowledge Bases is a fully managed service that handles the entire RAG pipeline: document ingestion, chunking, embedding generation, vector storage, and retrieval. This minimizes operational overhead since there are no servers to manage, patch, or scale. <strong>B is wrong</strong> because while LangChain offers flexibility, the question prioritizes minimal operational overhead, which a managed service provides. <strong>A is wrong</strong> because the primary advantage is operational simplicity, not necessarily cost per query. <strong>D is wrong</strong> because Bedrock Knowledge Bases does support OpenSearch Serverless as a vector store.'
   },
   {
     id: 22,
@@ -332,7 +332,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'The maxTokens parameter is too low, preventing the model from reading the full conversation.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> The Converse API is stateless — the developer must send the full conversation history with each request. After many turns, the total tokens can exceed the model\'s context window, causing older messages to be dropped. Implementing conversation summarization or a sliding window keeps the conversation within limits. <strong>B is wrong</strong> because the Converse API does support multi-turn conversations — the developer passes the message array with alternating user/assistant roles. <strong>C is wrong</strong> because there is no "session persistence" setting in the Bedrock console — state management is the developer\'s responsibility. <strong>D is wrong</strong> because maxTokens controls the output length, not how much input the model can read.'
+    explanation: '<strong>D is correct.</strong> The Converse API is stateless — the developer must send the full conversation history with each request. After many turns, the total tokens can exceed the model\'s context window, causing older messages to be dropped. Implementing conversation summarization or a sliding window keeps the conversation within limits. <strong>B is wrong</strong> because the Converse API does support multi-turn conversations — the developer passes the message array with alternating user/assistant roles. <strong>C is wrong</strong> because there is no "session persistence" setting in the Bedrock console — state management is the developer\'s responsibility. <strong>D is wrong</strong> because maxTokens controls the output length, not how much input the model can read.'
   },
   {
     id: 23,
@@ -364,7 +364,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'The application needs to be deployed in the same Availability Zone as the provisioned capacity.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Provisioned Throughput creates a dedicated model endpoint with its own ARN. If the application code continues to use the base model ID (e.g., anthropic.claude-3-sonnet), requests are routed to the on-demand pool and subject to standard throttling limits. The code must be updated to use the provisioned model ARN. <strong>B is wrong</strong> because Provisioned Throughput applies to all Bedrock inference APIs including InvokeModel. <strong>C is wrong</strong> because Provisioned Throughput shows as "Active" once provisioned, and API calls would return an error (not throttling) if the commitment were not ready. <strong>D is wrong</strong> because Bedrock is a regional service — there is no Availability Zone affinity for provisioned capacity.'
+    explanation: '<strong>B is correct.</strong> Provisioned Throughput creates a dedicated model endpoint with its own ARN. If the application code continues to use the base model ID (e.g., anthropic.claude-3-sonnet), requests are routed to the on-demand pool and subject to standard throttling limits. The code must be updated to use the provisioned model ARN. <strong>A is wrong</strong> because Provisioned Throughput applies to all Bedrock inference APIs including InvokeModel. <strong>C is wrong</strong> because Provisioned Throughput shows as "Active" once provisioned, and API calls would return an error (not throttling) if the commitment were not ready. <strong>D is wrong</strong> because Bedrock is a regional service — there is no Availability Zone affinity for provisioned capacity.'
   },
   {
     id: 25,
@@ -379,7 +379,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use Amazon Bedrock batch inference to process all 500 requests simultaneously.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Provisioned Throughput guarantees consistent throughput without throttling at peak loads. A smaller, faster model (like Haiku) has lower latency per request. Response streaming delivers the first tokens immediately, so users see output within seconds even if the full response takes longer. <strong>B is wrong</strong> because on-demand may throttle at 500 concurrent requests, larger models have higher latency, and max tokens increases response time. <strong>C is wrong</strong> because SageMaker endpoints require managing infrastructure and do not provide the same managed experience as Bedrock Provisioned Throughput. <strong>D is wrong</strong> because batch inference is for offline processing and does not meet real-time latency requirements.'
+    explanation: '<strong>C is correct.</strong> Provisioned Throughput guarantees consistent throughput without throttling at peak loads. A smaller, faster model (like Haiku) has lower latency per request. Response streaming delivers the first tokens immediately, so users see output within seconds even if the full response takes longer. <strong>B is wrong</strong> because on-demand may throttle at 500 concurrent requests, larger models have higher latency, and max tokens increases response time. <strong>A is wrong</strong> because SageMaker endpoints require managing infrastructure and do not provide the same managed experience as Bedrock Provisioned Throughput. <strong>D is wrong</strong> because batch inference is for offline processing and does not meet real-time latency requirements.'
   },
   {
     id: 26,
@@ -394,7 +394,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Use Amazon EMR with a Spark job that calls Bedrock for each document transformation.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Step Functions Map state processes documents in parallel (up to the concurrency limit), with each iteration running the three sequential steps. Step Functions natively handles retries, error handling, and state tracking — meeting both the throughput and failure handling requirements. <strong>B is wrong</strong> because a single Lambda has a 15-minute timeout and cannot process 10,000 documents sequentially within that limit. <strong>C is wrong</strong> because three separate SQS queues require custom coordination to ensure sequential processing per document, adding complexity. <strong>D is wrong</strong> because EMR is designed for big data processing, not API-call-based workflows, and adds unnecessary infrastructure overhead.'
+    explanation: '<strong>D is correct.</strong> Step Functions Map state processes documents in parallel (up to the concurrency limit), with each iteration running the three sequential steps. Step Functions natively handles retries, error handling, and state tracking — meeting both the throughput and failure handling requirements. <strong>B is wrong</strong> because a single Lambda has a 15-minute timeout and cannot process 10,000 documents sequentially within that limit. <strong>C is wrong</strong> because three separate SQS queues require custom coordination to ensure sequential processing per document, adding complexity. <strong>A is wrong</strong> because EMR is designed for big data processing, not API-call-based workflows, and adds unnecessary infrastructure overhead.'
   },
   {
     id: 27,
@@ -424,7 +424,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use AWS Direct Connect to create a dedicated connection between the VPC and Bedrock.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock supports VPC endpoints via AWS PrivateLink. Creating a VPC endpoint for the bedrock-runtime service allows the Lambda function to call the InvokeModel API without leaving the VPC, which is the most secure approach. <strong>B is wrong</strong> because while a NAT Gateway would work, it routes traffic over the internet, which may not meet security requirements and adds cost. <strong>C is wrong</strong> because Bedrock can absolutely be accessed from within a VPC via PrivateLink. <strong>D is wrong</strong> because Direct Connect is for connecting on-premises networks to AWS, not for VPC-to-service connectivity.'
+    explanation: '<strong>B is correct.</strong> Amazon Bedrock supports VPC endpoints via AWS PrivateLink. Creating a VPC endpoint for the bedrock-runtime service allows the Lambda function to call the InvokeModel API without leaving the VPC, which is the most secure approach. <strong>A is wrong</strong> because while a NAT Gateway would work, it routes traffic over the internet, which may not meet security requirements and adds cost. <strong>C is wrong</strong> because Bedrock can absolutely be accessed from within a VPC via PrivateLink. <strong>D is wrong</strong> because Direct Connect is for connecting on-premises networks to AWS, not for VPC-to-service connectivity.'
   },
   {
     id: 29,
@@ -439,7 +439,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Build a custom abstraction layer that translates requests to each provider\'s native format.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> The Converse API provides a unified, model-agnostic interface for Amazon Bedrock. It uses the same request and response format regardless of the underlying model provider, allowing developers to switch models by changing only the model ID. <strong>B is wrong</strong> because InvokeModel requires provider-specific request body formats, meaning code changes when switching providers. <strong>C is wrong</strong> because model customization creates a fine-tuned model, not a unified API. <strong>D is wrong</strong> because building a custom abstraction layer is unnecessary when the Converse API already provides this capability.'
+    explanation: '<strong>C is correct.</strong> The Converse API provides a unified, model-agnostic interface for Amazon Bedrock. It uses the same request and response format regardless of the underlying model provider, allowing developers to switch models by changing only the model ID. <strong>B is wrong</strong> because InvokeModel requires provider-specific request body formats, meaning code changes when switching providers. <strong>A is wrong</strong> because model customization creates a fine-tuned model, not a unified API. <strong>D is wrong</strong> because building a custom abstraction layer is unnecessary when the Converse API already provides this capability.'
   },
   {
     id: 30,
@@ -454,7 +454,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Cache common responses in Amazon ElastiCache to avoid calling Bedrock for repeated questions.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Response streaming delivers tokens to the client as they are generated, so users see text appearing progressively. This dramatically improves perceived latency even though total generation time is the same. <strong>B is wrong</strong> because lower maxTokens shortens the response but may cut off useful content, and does not improve the progressive display experience. <strong>C is wrong</strong> because Provisioned Throughput improves throughput and consistency but does not fundamentally change the time-to-complete for long responses. <strong>D is wrong</strong> because caching only helps for repeated identical queries and does not solve the general progressive display need.'
+    explanation: '<strong>D is correct.</strong> Response streaming delivers tokens to the client as they are generated, so users see text appearing progressively. This dramatically improves perceived latency even though total generation time is the same. <strong>B is wrong</strong> because lower maxTokens shortens the response but may cut off useful content, and does not improve the progressive display experience. <strong>C is wrong</strong> because Provisioned Throughput improves throughput and consistency but does not fundamentally change the time-to-complete for long responses. <strong>A is wrong</strong> because caching only helps for repeated identical queries and does not solve the general progressive display need.'
   },
   {
     id: 31,
@@ -470,7 +470,7 @@ export const questionsV6: Question[] = [
       { letter: 'E', text: 'Fine-tune the agent\'s model on examples of Jira ticket creation.' }
     ],
     correct: ['C', 'D'],
-    explanation: '<strong>A is correct.</strong> The agent needs a Knowledge Base association to search IT documentation. Bedrock Agents natively support querying associated Knowledge Bases. <strong>B is correct.</strong> Action groups with OpenAPI schemas are the standard way to connect Bedrock Agents to external APIs. The Lambda function handles the actual Jira API call with proper authentication. <strong>C is wrong</strong> because a single agent can have both Knowledge Base associations and action groups — no need for separate agents. <strong>D is wrong</strong> because API keys are secrets and should never be stored in searchable Knowledge Base documents. <strong>E is wrong</strong> because fine-tuning teaches text patterns but does not give the model the ability to execute API calls.'
+    explanation: '<strong>C is correct.</strong> The agent needs a Knowledge Base association to search IT documentation. Bedrock Agents natively support querying associated Knowledge Bases. <strong>D is correct.</strong> Action groups with OpenAPI schemas are the standard way to connect Bedrock Agents to external APIs. The Lambda function handles the actual Jira API call with proper authentication. <strong>A is wrong</strong> because a single agent can have both Knowledge Base associations and action groups — no need for separate agents. <strong>B is wrong</strong> because API keys are secrets and should never be stored in searchable Knowledge Base documents. <strong>E is wrong</strong> because fine-tuning teaches text patterns but does not give the model the ability to execute API calls.'
   },
   {
     id: 32,
@@ -500,7 +500,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Store documents in Amazon DynamoDB with full-text search enabled via DynamoDB Streams and OpenSearch.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Knowledge Bases provide a fully managed solution for semantic search over S3 documents. The service handles ingestion, chunking, embedding, and vector storage automatically, minimizing development effort. <strong>B is wrong</strong> because deploying and managing a self-hosted vector database on ECS requires significant development and operational effort. <strong>C is wrong</strong> because while Kendra works, it is a separate enterprise search service with its own pricing model and does not integrate as seamlessly into a Bedrock-based AI application. <strong>D is wrong</strong> because building a custom search pipeline with DynamoDB Streams and OpenSearch requires significant custom development.'
+    explanation: '<strong>B is correct.</strong> Amazon Bedrock Knowledge Bases provide a fully managed solution for semantic search over S3 documents. The service handles ingestion, chunking, embedding, and vector storage automatically, minimizing development effort. <strong>A is wrong</strong> because deploying and managing a self-hosted vector database on ECS requires significant development and operational effort. <strong>C is wrong</strong> because while Kendra works, it is a separate enterprise search service with its own pricing model and does not integrate as seamlessly into a Bedrock-based AI application. <strong>D is wrong</strong> because building a custom search pipeline with DynamoDB Streams and OpenSearch requires significant custom development.'
   },
   {
     id: 34,
@@ -515,7 +515,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Build the orchestration in AWS Step Functions calling Bedrock APIs at each step.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Prompt Flows provides a visual node-based interface for orchestrating multi-step AI workflows. It natively supports Knowledge Base retrieval nodes, prompt nodes, and Lambda nodes, making this the purpose-built solution for the described workflow. <strong>B is wrong</strong> because chaining agents via EventBridge adds unnecessary complexity for a sequential workflow that Prompt Flows handles natively. <strong>C is wrong</strong> because a single prompt cannot execute Knowledge Base queries or Lambda function validations. <strong>D is wrong</strong> because while Step Functions could work, Prompt Flows is the Bedrock-native orchestration tool designed specifically for this use case with less code.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock Prompt Flows provides a visual node-based interface for orchestrating multi-step AI workflows. It natively supports Knowledge Base retrieval nodes, prompt nodes, and Lambda nodes, making this the purpose-built solution for the described workflow. <strong>B is wrong</strong> because chaining agents via EventBridge adds unnecessary complexity for a sequential workflow that Prompt Flows handles natively. <strong>A is wrong</strong> because a single prompt cannot execute Knowledge Base queries or Lambda function validations. <strong>D is wrong</strong> because while Step Functions could work, Prompt Flows is the Bedrock-native orchestration tool designed specifically for this use case with less code.'
   },
   {
     id: 35,
@@ -530,7 +530,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Use AWS Cost Explorer tags to attribute Bedrock costs to each team.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock model invocation logging sends detailed logs including input and output token counts to CloudWatch. Using CloudWatch dimensions or log filtering, the team can break down token usage per application or team. <strong>B is wrong</strong> because creating separate AWS accounts is a heavy-weight solution for what is a monitoring and logging concern. <strong>C is wrong</strong> because building custom token counting middleware duplicates functionality already provided by Bedrock invocation logging. <strong>D is wrong</strong> because while Cost Explorer shows Bedrock costs, it does not provide token-level granularity per team within a shared account without additional logging.'
+    explanation: '<strong>D is correct.</strong> Amazon Bedrock model invocation logging sends detailed logs including input and output token counts to CloudWatch. Using CloudWatch dimensions or log filtering, the team can break down token usage per application or team. <strong>B is wrong</strong> because creating separate AWS accounts is a heavy-weight solution for what is a monitoring and logging concern. <strong>C is wrong</strong> because building custom token counting middleware duplicates functionality already provided by Bedrock invocation logging. <strong>A is wrong</strong> because while Cost Explorer shows Bedrock costs, it does not provide token-level granularity per team within a shared account without additional logging.'
   },
   {
     id: 36,
@@ -560,7 +560,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use a regular expression filter in the application code to strip competitor names after generation.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Guardrails provides configurable content filters including word-level filters and denied topics that reliably block specific terms from appearing in model outputs. This is a systematic, policy-based approach. <strong>B is wrong</strong> because system prompts are suggestive, not deterministic — models can still occasionally include prohibited terms. <strong>C is wrong</strong> because fine-tuning reduces but does not eliminate the chance of competitor names appearing. <strong>D is wrong</strong> because regex filtering is reactive and brittle — it may miss variations, abbreviations, or new competitor names not in the filter list.'
+    explanation: '<strong>B is correct.</strong> Amazon Bedrock Guardrails provides configurable content filters including word-level filters and denied topics that reliably block specific terms from appearing in model outputs. This is a systematic, policy-based approach. <strong>A is wrong</strong> because system prompts are suggestive, not deterministic — models can still occasionally include prohibited terms. <strong>C is wrong</strong> because fine-tuning reduces but does not eliminate the chance of competitor names appearing. <strong>D is wrong</strong> because regex filtering is reactive and brittle — it may miss variations, abbreviations, or new competitor names not in the filter list.'
   },
   {
     id: 38,
@@ -575,7 +575,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'A single Lambda function that performs all three steps sequentially.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Agents excel at multi-step reasoning workflows. The agent can use action groups (backed by Lambda) to extract form data and query the database, then use its built-in reasoning to generate the claim assessment — all orchestrated automatically based on the task. <strong>B is wrong</strong> because while Step Functions works for fixed sequential workflows, a Bedrock Agent provides more intelligent, dynamic orchestration with built-in reasoning. <strong>C is wrong</strong> because SQS queues add asynchronous complexity to what should be a synchronous, sequential workflow. <strong>D is wrong</strong> because a single Lambda function tightly couples all logic, has timeout limitations, and is harder to maintain.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock Agents excel at multi-step reasoning workflows. The agent can use action groups (backed by Lambda) to extract form data and query the database, then use its built-in reasoning to generate the claim assessment — all orchestrated automatically based on the task. <strong>B is wrong</strong> because while Step Functions works for fixed sequential workflows, a Bedrock Agent provides more intelligent, dynamic orchestration with built-in reasoning. <strong>A is wrong</strong> because SQS queues add asynchronous complexity to what should be a synchronous, sequential workflow. <strong>D is wrong</strong> because a single Lambda function tightly couples all logic, has timeout limitations, and is harder to maintain.'
   },
   {
     id: 39,
@@ -590,7 +590,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Different AWS Regions have different processing speeds for the same model.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> On-demand Bedrock inference is a shared, multi-tenant service. During periods of high demand from other customers, individual requests may experience queuing and variable latency. Provisioned Throughput provides dedicated capacity, resulting in more consistent response times. <strong>B is wrong</strong> because models do not randomly vary processing speed — latency is determined by input/output length and available compute. <strong>C is wrong</strong> because while network issues can cause latency, the pattern of consistent input with variable latency points to server-side capacity sharing. <strong>D is wrong</strong> because the question describes variation within the same application, not cross-region comparison.'
+    explanation: '<strong>D is correct.</strong> On-demand Bedrock inference is a shared, multi-tenant service. During periods of high demand from other customers, individual requests may experience queuing and variable latency. Provisioned Throughput provides dedicated capacity, resulting in more consistent response times. <strong>B is wrong</strong> because models do not randomly vary processing speed — latency is determined by input/output length and available compute. <strong>C is wrong</strong> because while network issues can cause latency, the pattern of consistent input with variable latency points to server-side capacity sharing. <strong>A is wrong</strong> because the question describes variation within the same application, not cross-region comparison.'
   },
   {
     id: 40,
@@ -620,7 +620,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use Amazon Bedrock batch inference to run all three steps simultaneously.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Prompt chaining is the standard pattern for multi-step reasoning. Each Converse API call receives the output of the previous step, allowing the model to focus on one task at a time. This produces better results than trying to combine all steps into one prompt. <strong>B is wrong</strong> because combining all steps into one prompt reduces quality — the model tends to produce a single blended response rather than genuinely separate draft, critique, and final steps. <strong>C is wrong</strong> because creating three fine-tuned models is excessive when the same model can perform all three tasks via different prompts. <strong>D is wrong</strong> because batch inference is for processing many independent inputs offline, and the three steps are sequential, not parallel.'
+    explanation: '<strong>B is correct.</strong> Prompt chaining is the standard pattern for multi-step reasoning. Each Converse API call receives the output of the previous step, allowing the model to focus on one task at a time. This produces better results than trying to combine all steps into one prompt. <strong>A is wrong</strong> because combining all steps into one prompt reduces quality — the model tends to produce a single blended response rather than genuinely separate draft, critique, and final steps. <strong>C is wrong</strong> because creating three fine-tuned models is excessive when the same model can perform all three tasks via different prompts. <strong>D is wrong</strong> because batch inference is for processing many independent inputs offline, and the three steps are sequential, not parallel.'
   },
   {
     id: 42,
@@ -635,7 +635,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Fine-tune a Bedrock model to respond identically to OpenAI models so the application behavior remains the same.' }
     ],
     correct: ['C'],
-    explanation: '<strong>B is correct.</strong> The Bedrock Converse API uses a similar message-based interface (system, user, assistant roles) to OpenAI\'s Chat Completions API. The migration primarily involves changing the SDK client initialization and model ID references while keeping the overall conversation structure similar. <strong>A is wrong</strong> because it describes the same approach but implies more work — the Converse API is specifically designed to be model-agnostic and familiar. <strong>C is wrong</strong> because while a proxy could work, it adds an unnecessary service layer to maintain. <strong>D is wrong</strong> because fine-tuning changes model behavior, not API compatibility.'
+    explanation: '<strong>C is correct.</strong> The Bedrock Converse API uses a similar message-based interface (system, user, assistant roles) to OpenAI\'s Chat Completions API. The migration primarily involves changing the SDK client initialization and model ID references while keeping the overall conversation structure similar. <strong>A is wrong</strong> because it describes the same approach but implies more work — the Converse API is specifically designed to be model-agnostic and familiar. <strong>C is wrong</strong> because while a proxy could work, it adds an unnecessary service layer to maintain. <strong>D is wrong</strong> because fine-tuning changes model behavior, not API compatibility.'
   },
   {
     id: 43,
@@ -650,7 +650,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Configure an Amazon ElastiCache Redis cluster to store conversation state with TTL expiration.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> The Bedrock Converse API is stateless — the developer must manage conversation history. DynamoDB provides durable, scalable storage for conversation histories keyed by session or user ID. Loading and passing the history with each API call maintains context across sessions. <strong>B is wrong</strong> because there is no session persistence setting in the Bedrock console — Bedrock APIs are stateless by design. <strong>C is wrong</strong> because localStorage is device-specific, has size limits, and is not durable across browser clears. <strong>D is wrong</strong> because while ElastiCache provides fast in-memory storage, it is volatile and data can be lost; DynamoDB provides durable persistence.'
+    explanation: '<strong>D is correct.</strong> The Bedrock Converse API is stateless — the developer must manage conversation history. DynamoDB provides durable, scalable storage for conversation histories keyed by session or user ID. Loading and passing the history with each API call maintains context across sessions. <strong>B is wrong</strong> because there is no session persistence setting in the Bedrock console — Bedrock APIs are stateless by design. <strong>C is wrong</strong> because localStorage is device-specific, has size limits, and is not durable across browser clears. <strong>A is wrong</strong> because while ElastiCache provides fast in-memory storage, it is volatile and data can be lost; DynamoDB provides durable persistence.'
   },
 
   // ─── Domain 3: Safety, Security & Governance (15 questions, IDs 44–58) ───
@@ -682,7 +682,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Create IAM permission boundaries in the Control Tower account factory template to restrict Bedrock access.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Control Tower supports custom guardrails implemented as SCPs. Creating a preventive guardrail that denies Bedrock actions and applying it to the sandbox OU is the standard Control Tower approach for restricting services per OU. <strong>B is wrong</strong> because Control Tower does not have a per-service disable feature in the landing zone configuration. <strong>C is wrong</strong> because Config conformance packs are detective (monitoring and alerting), not preventive — they do not block access. <strong>D is wrong</strong> because IAM permission boundaries apply per-principal and are harder to manage at scale compared to OU-level SCPs.'
+    explanation: '<strong>B is correct.</strong> Control Tower supports custom guardrails implemented as SCPs. Creating a preventive guardrail that denies Bedrock actions and applying it to the sandbox OU is the standard Control Tower approach for restricting services per OU. <strong>A is wrong</strong> because Control Tower does not have a per-service disable feature in the landing zone configuration. <strong>C is wrong</strong> because Config conformance packs are detective (monitoring and alerting), not preventive — they do not block access. <strong>D is wrong</strong> because IAM permission boundaries apply per-principal and are harder to manage at scale compared to OU-level SCPs.'
   },
   {
     id: 46,
@@ -697,7 +697,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Amazon Macie to automatically detect and restrict access to PII data in the data lake.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> AWS Lake Formation provides centralized governance for data lakes with fine-grained access controls including row-level and column-level security. It integrates with the AWS Glue Data Catalog and allows administrators to define granular permissions per principal, per table, down to specific rows and columns. <strong>B is wrong</strong> because S3 bucket policies operate at the object/prefix level and cannot provide row or column-level access control within files. <strong>C is wrong</strong> because IAM policies can control S3 object access but cannot enforce row/column-level restrictions within data files. <strong>D is wrong</strong> because Macie detects sensitive data but does not enforce access controls — it is a discovery tool, not a governance tool.'
+    explanation: '<strong>C is correct.</strong> AWS Lake Formation provides centralized governance for data lakes with fine-grained access controls including row-level and column-level security. It integrates with the AWS Glue Data Catalog and allows administrators to define granular permissions per principal, per table, down to specific rows and columns. <strong>B is wrong</strong> because S3 bucket policies operate at the object/prefix level and cannot provide row or column-level access control within files. <strong>A is wrong</strong> because IAM policies can control S3 object access but cannot enforce row/column-level restrictions within data files. <strong>D is wrong</strong> because Macie detects sensitive data but does not enforce access controls — it is a discovery tool, not a governance tool.'
   },
   {
     id: 47,
@@ -712,7 +712,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Amazon Comprehend Medical to filter the model\'s output for medical entities before returning to the user.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Guardrails provides configurable content filtering including denied topics (blocks specific subject areas), word filters, and PII detection/redaction. Configuring denied topics for diagnoses and prescriptions, plus PII filters for names, provides reliable, policy-enforced protection. <strong>B is wrong</strong> because system prompts are best-effort and models can still produce prohibited content. <strong>C is wrong</strong> because fine-tuning reduces but cannot guarantee elimination of prohibited content. <strong>D is wrong</strong> because Comprehend Medical identifies medical entities but does not filter or block content — it is an analysis tool, not a content filter.'
+    explanation: '<strong>D is correct.</strong> Amazon Bedrock Guardrails provides configurable content filtering including denied topics (blocks specific subject areas), word filters, and PII detection/redaction. Configuring denied topics for diagnoses and prescriptions, plus PII filters for names, provides reliable, policy-enforced protection. <strong>B is wrong</strong> because system prompts are best-effort and models can still produce prohibited content. <strong>C is wrong</strong> because fine-tuning reduces but cannot guarantee elimination of prohibited content. <strong>A is wrong</strong> because Comprehend Medical identifies medical entities but does not filter or block content — it is an analysis tool, not a content filter.'
   },
   {
     id: 48,
@@ -742,7 +742,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'VPC Flow Logs to monitor network traffic between the application and Bedrock endpoints.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock model invocation logging captures detailed information about each model call, including the full input prompt and generated response. Logs can be sent to S3 for long-term storage and CloudWatch Logs for real-time analysis. <strong>B is wrong</strong> because CloudTrail captures API management events (who called what API) but does not capture the actual prompt content or model responses. <strong>C is wrong</strong> because model evaluation jobs assess model quality, not individual invocation auditing. <strong>D is wrong</strong> because VPC Flow Logs capture network metadata (IPs, ports) but not application-level content like prompts and responses.'
+    explanation: '<strong>B is correct.</strong> Amazon Bedrock model invocation logging captures detailed information about each model call, including the full input prompt and generated response. Logs can be sent to S3 for long-term storage and CloudWatch Logs for real-time analysis. <strong>A is wrong</strong> because CloudTrail captures API management events (who called what API) but does not capture the actual prompt content or model responses. <strong>C is wrong</strong> because model evaluation jobs assess model quality, not individual invocation auditing. <strong>D is wrong</strong> because VPC Flow Logs capture network metadata (IPs, ports) but not application-level content like prompts and responses.'
   },
   {
     id: 50,
@@ -757,7 +757,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use a smaller model that is less capable of following complex injection prompts.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> A defense-in-depth approach combining Bedrock Guardrails (which filter harmful inputs and outputs) with application-layer input validation provides the strongest protection against prompt injection. Guardrails can block specific attack patterns, while application validation catches known injection techniques. <strong>B is wrong</strong> because prompt complexity does not prevent injection — sophisticated attacks can override instructions regardless of system prompt length. <strong>C is wrong</strong> because temperature controls randomness, not instruction following — a model at temperature 0 still follows injected instructions. <strong>D is wrong</strong> because even smaller models can be manipulated by prompt injection attacks.'
+    explanation: '<strong>C is correct.</strong> A defense-in-depth approach combining Bedrock Guardrails (which filter harmful inputs and outputs) with application-layer input validation provides the strongest protection against prompt injection. Guardrails can block specific attack patterns, while application validation catches known injection techniques. <strong>B is wrong</strong> because prompt complexity does not prevent injection — sophisticated attacks can override instructions regardless of system prompt length. <strong>A is wrong</strong> because temperature controls randomness, not instruction following — a model at temperature 0 still follows injected instructions. <strong>D is wrong</strong> because even smaller models can be manipulated by prompt injection attacks.'
   },
   {
     id: 51,
@@ -773,7 +773,7 @@ export const questionsV6: Question[] = [
       { letter: 'E', text: 'Configure Amazon Inspector to scan Bedrock for security vulnerabilities.' }
     ],
     correct: ['A', 'C'],
-    explanation: '<strong>A is correct.</strong> CloudTrail provides access logging for all Bedrock API calls (who, when, what), and model invocation logging captures detailed request/response data. Together, they satisfy the audit trail requirement. <strong>B is correct.</strong> VPC endpoints via PrivateLink ensure Bedrock traffic stays within the AWS private network, not traversing the internet. Security groups provide network-level access control. Bedrock already encrypts data in transit (TLS) and at rest. <strong>C is wrong</strong> because there is no "Bedrock Enterprise license" — Bedrock is available through standard AWS accounts. <strong>D is wrong</strong> because Bedrock is a managed multi-tenant service; dedicated tenancy is not available or necessary for SOC 2. <strong>E is wrong</strong> because Amazon Inspector scans EC2 instances, Lambda functions, and container images for vulnerabilities — it does not scan managed services like Bedrock.'
+    explanation: '<strong>A is correct.</strong> CloudTrail provides access logging for all Bedrock API calls (who, when, what), and model invocation logging captures detailed request/response data. Together, they satisfy the audit trail requirement. <strong>C is correct.</strong> VPC endpoints via PrivateLink ensure Bedrock traffic stays within the AWS private network, not traversing the internet. Security groups provide network-level access control. Bedrock already encrypts data in transit (TLS) and at rest. <strong>B is wrong</strong> because there is no "Bedrock Enterprise license" — Bedrock is available through standard AWS accounts. <strong>D is wrong</strong> because Bedrock is a managed multi-tenant service; dedicated tenancy is not available or necessary for SOC 2. <strong>E is wrong</strong> because Amazon Inspector scans EC2 instances, Lambda functions, and container images for vulnerabilities — it does not scan managed services like Bedrock.'
   },
   {
     id: 52,
@@ -788,7 +788,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Three separate Guardrails combined into a Guardrail chain via Amazon EventBridge.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> A single Amazon Bedrock Guardrail can contain multiple policy types simultaneously: denied topics, word filters, and sensitive information (PII) filters. All policies are evaluated on each request, providing comprehensive protection within a single Guardrail configuration. <strong>B is wrong</strong> because you cannot chain multiple Guardrails on a single model invocation — one Guardrail is applied per call. <strong>C is wrong</strong> because these are distinct policy types (denied topics, word filters, PII), not a single custom filter. <strong>D is wrong</strong> because Guardrail chaining via EventBridge is not a supported feature.'
+    explanation: '<strong>D is correct.</strong> A single Amazon Bedrock Guardrail can contain multiple policy types simultaneously: denied topics, word filters, and sensitive information (PII) filters. All policies are evaluated on each request, providing comprehensive protection within a single Guardrail configuration. <strong>B is wrong</strong> because you cannot chain multiple Guardrails on a single model invocation — one Guardrail is applied per call. <strong>C is wrong</strong> because these are distinct policy types (denied topics, word filters, PII), not a single custom filter. <strong>A is wrong</strong> because Guardrail chaining via EventBridge is not a supported feature.'
   },
   {
     id: 53,
@@ -818,7 +818,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Create separate VPCs for each team with VPC endpoints configured for specific models.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> IAM policies support resource-level permissions for Bedrock model invocation. Using the resource ARN or condition keys to restrict which models a role can invoke implements least privilege at the identity layer. <strong>B is wrong</strong> because creating separate accounts is excessive for what can be achieved with IAM policies. <strong>C is wrong</strong> because Guardrails filter content, not model access — they cannot restrict which models a user can invoke. <strong>D is wrong</strong> because VPC endpoints provide network-level connectivity, not model-level access control.'
+    explanation: '<strong>B is correct.</strong> IAM policies support resource-level permissions for Bedrock model invocation. Using the resource ARN or condition keys to restrict which models a role can invoke implements least privilege at the identity layer. <strong>A is wrong</strong> because creating separate accounts is excessive for what can be achieved with IAM policies. <strong>C is wrong</strong> because Guardrails filter content, not model access — they cannot restrict which models a user can invoke. <strong>D is wrong</strong> because VPC endpoints provide network-level connectivity, not model-level access control.'
   },
   {
     id: 55,
@@ -833,7 +833,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use AWS Trusted Advisor to check for AI best practice violations.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock model evaluation supports both automatic evaluation (using metrics like accuracy, toxicity, robustness) and human evaluation workflows. Running evaluations before deployment is an AWS responsible AI best practice for identifying bias, fairness issues, and harmful outputs. <strong>B is wrong</strong> because deploying without pre-production evaluation exposes users to potential harms and violates responsible AI principles. <strong>C is wrong</strong> because Inspector identifies software security vulnerabilities, not AI-specific risks like bias or harmful outputs. <strong>D is wrong</strong> because Trusted Advisor checks for AWS infrastructure best practices (cost, security, performance), not AI-specific risks.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock model evaluation supports both automatic evaluation (using metrics like accuracy, toxicity, robustness) and human evaluation workflows. Running evaluations before deployment is an AWS responsible AI best practice for identifying bias, fairness issues, and harmful outputs. <strong>B is wrong</strong> because deploying without pre-production evaluation exposes users to potential harms and violates responsible AI principles. <strong>A is wrong</strong> because Inspector identifies software security vulnerabilities, not AI-specific risks like bias or harmful outputs. <strong>D is wrong</strong> because Trusted Advisor checks for AWS infrastructure best practices (cost, security, performance), not AI-specific risks.'
   },
   {
     id: 56,
@@ -848,7 +848,7 @@ export const questionsV6: Question[] = [
       { letter: 'C', text: 'AWS Config to record resource configuration changes across the pipeline.' }
     ],
     correct: ['D'],
-    explanation: '<strong>C is correct.</strong> Amazon SageMaker ML Lineage Tracking is purpose-built for tracking the full lineage of ML artifacts: datasets, training jobs, models, and deployed endpoints. It records relationships and dependencies across the entire ML pipeline. <strong>A is wrong</strong> because Lake Formation manages data governance and CloudTrail tracks API calls, but neither provides artifact-level ML lineage tracking. <strong>B is wrong</strong> because S3 versioning tracks file versions but does not record relationships between datasets, models, and applications. <strong>D is wrong</strong> because AWS Config tracks resource configuration changes but does not provide ML-specific lineage tracking.'
+    explanation: '<strong>D is correct.</strong> Amazon SageMaker ML Lineage Tracking is purpose-built for tracking the full lineage of ML artifacts: datasets, training jobs, models, and deployed endpoints. It records relationships and dependencies across the entire ML pipeline. <strong>A is wrong</strong> because Lake Formation manages data governance and CloudTrail tracks API calls, but neither provides artifact-level ML lineage tracking. <strong>B is wrong</strong> because S3 versioning tracks file versions but does not record relationships between datasets, models, and applications. <strong>C is wrong</strong> because AWS Config tracks resource configuration changes but does not provide ML-specific lineage tracking.'
   },
   {
     id: 57,
@@ -878,7 +878,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use AWS Backup to create daily snapshots of the Bedrock service configuration.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> S3 Object Lock in compliance mode provides WORM (Write Once Read Many) protection that prevents deletion or modification for the specified retention period. Combined with Bedrock model invocation logging, this creates an immutable, tamper-proof audit trail for 7 years. <strong>B is wrong</strong> because CloudWatch Logs retention prevents deletion after the period, but does not provide the same immutability guarantees as S3 Object Lock compliance mode. <strong>C is wrong</strong> because standard S3 without Object Lock allows deletion and modification, violating the immutability requirement. <strong>D is wrong</strong> because AWS Backup does not support backing up Bedrock invocation logs or service configurations.'
+    explanation: '<strong>B is correct.</strong> S3 Object Lock in compliance mode provides WORM (Write Once Read Many) protection that prevents deletion or modification for the specified retention period. Combined with Bedrock model invocation logging, this creates an immutable, tamper-proof audit trail for 7 years. <strong>A is wrong</strong> because CloudWatch Logs retention prevents deletion after the period, but does not provide the same immutability guarantees as S3 Object Lock compliance mode. <strong>C is wrong</strong> because standard S3 without Object Lock allows deletion and modification, violating the immutability requirement. <strong>D is wrong</strong> because AWS Backup does not support backing up Bedrock invocation logs or service configurations.'
   },
 
   // ─── Domain 4: Operational Efficiency (9 questions, IDs 59–67) ───
@@ -895,7 +895,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Create a DynamoDB table with prompt text, version numbers, and team ownership fields.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock Prompt Management provides a purpose-built service for creating, versioning, and managing prompts. Prompts are versioned with ARNs, enabling applications to reference specific versions and teams to iterate without affecting production. <strong>B is wrong</strong> because S3 provides storage but not versioning workflow, prompt-specific features, or integration with Bedrock. <strong>C is wrong</strong> because Parameter Store stores configuration values but lacks prompt-specific features like testing, comparison, and Bedrock integration. <strong>D is wrong</strong> because DynamoDB provides custom storage but requires building all management, versioning, and access control logic from scratch.'
+    explanation: '<strong>C is correct.</strong> Amazon Bedrock Prompt Management provides a purpose-built service for creating, versioning, and managing prompts. Prompts are versioned with ARNs, enabling applications to reference specific versions and teams to iterate without affecting production. <strong>B is wrong</strong> because S3 provides storage but not versioning workflow, prompt-specific features, or integration with Bedrock. <strong>A is wrong</strong> because Parameter Store stores configuration values but lacks prompt-specific features like testing, comparison, and Bedrock integration. <strong>D is wrong</strong> because DynamoDB provides custom storage but requires building all management, versioning, and access control logic from scratch.'
   },
   {
     id: 60,
@@ -910,7 +910,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Run both prompts through Amazon Comprehend sentiment analysis and choose the one with higher positive sentiment scores.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock model evaluation supports both automatic evaluation (using metrics like accuracy, helpfulness, toxicity scored by a judge model) and human evaluation workflows where reviewers rate responses. This provides rigorous, structured comparison before deployment. <strong>B is wrong</strong> because deploying untested prompts to production exposes real users to potentially worse experiences. <strong>C is wrong</strong> because manual testing with a small sample is not statistically rigorous and is prone to bias. <strong>D is wrong</strong> because sentiment analysis measures emotional tone, not helpfulness, accuracy, or response quality for customer support.'
+    explanation: '<strong>D is correct.</strong> Amazon Bedrock model evaluation supports both automatic evaluation (using metrics like accuracy, helpfulness, toxicity scored by a judge model) and human evaluation workflows where reviewers rate responses. This provides rigorous, structured comparison before deployment. <strong>B is wrong</strong> because deploying untested prompts to production exposes real users to potentially worse experiences. <strong>C is wrong</strong> because manual testing with a small sample is not statistically rigorous and is prone to bias. <strong>A is wrong</strong> because sentiment analysis measures emotional tone, not helpfulness, accuracy, or response quality for customer support.'
   },
   {
     id: 61,
@@ -940,7 +940,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Review model invocation logs manually each week.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Periodic automated evaluation with a curated test dataset detects quality degradation (relevance, coherence, repetitiveness) over time. CloudWatch alarms provide automated alerting when scores drop. <strong>B is wrong</strong> because latency and error rates measure operational health, not response quality. <strong>C is wrong</strong> because Guardrails filter specific content types but do not measure or track quality trends over time. <strong>D is wrong</strong> because manual weekly reviews are not scalable, not automated, and too infrequent to catch degradation quickly.'
+    explanation: '<strong>B is correct.</strong> Periodic automated evaluation with a curated test dataset detects quality degradation (relevance, coherence, repetitiveness) over time. CloudWatch alarms provide automated alerting when scores drop. <strong>A is wrong</strong> because latency and error rates measure operational health, not response quality. <strong>C is wrong</strong> because Guardrails filter specific content types but do not measure or track quality trends over time. <strong>D is wrong</strong> because manual weekly reviews are not scalable, not automated, and too infrequent to catch degradation quickly.'
   },
   {
     id: 63,
@@ -955,7 +955,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Switch to a cheaper model for the boilerplate documents and use the premium model only for unique documents.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Caching identical prompt-response pairs in ElastiCache eliminates redundant Bedrock invocations entirely. For documents with identical boilerplate, the cached response is returned instantly at near-zero cost. <strong>B is wrong</strong> because batch inference provides convenience but does not eliminate redundant processing for identical prompts. <strong>C is wrong</strong> because shorter responses reduce per-request cost but do not eliminate redundant invocations. <strong>D is wrong</strong> because using a cheaper model still incurs costs for every invocation — caching avoids the invocation entirely.'
+    explanation: '<strong>C is correct.</strong> Caching identical prompt-response pairs in ElastiCache eliminates redundant Bedrock invocations entirely. For documents with identical boilerplate, the cached response is returned instantly at near-zero cost. <strong>B is wrong</strong> because batch inference provides convenience but does not eliminate redundant processing for identical prompts. <strong>A is wrong</strong> because shorter responses reduce per-request cost but do not eliminate redundant invocations. <strong>D is wrong</strong> because using a cheaper model still incurs costs for every invocation — caching avoids the invocation entirely.'
   },
   {
     id: 64,
@@ -970,7 +970,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Use Amazon SageMaker Clarify to run bias and accuracy analysis on both models.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock model evaluation natively supports comparing multiple models against a test dataset with automatic evaluation metrics. It handles the test execution, metric calculation, and reporting in a managed way. <strong>B is wrong</strong> because A/B testing in production is appropriate after evaluation, not as the evaluation method itself — it exposes users to unvalidated models. <strong>C is wrong</strong> because custom scripts replicate functionality already provided by the managed evaluation service and require more effort. <strong>D is wrong</strong> because SageMaker Clarify is designed for SageMaker models, not Bedrock foundation models.'
+    explanation: '<strong>D is correct.</strong> Amazon Bedrock model evaluation natively supports comparing multiple models against a test dataset with automatic evaluation metrics. It handles the test execution, metric calculation, and reporting in a managed way. <strong>B is wrong</strong> because A/B testing in production is appropriate after evaluation, not as the evaluation method itself — it exposes users to unvalidated models. <strong>C is wrong</strong> because custom scripts replicate functionality already provided by the managed evaluation service and require more effort. <strong>A is wrong</strong> because SageMaker Clarify is designed for SageMaker models, not Bedrock foundation models.'
   },
   {
     id: 65,
@@ -985,7 +985,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Use Amazon Translate instead of Bedrock for pure translation tasks.' }
     ],
     correct: ['A'],
-    explanation: '<strong>D is correct.</strong> Amazon Translate is a purpose-built, cost-effective translation service. For straightforward translation tasks (not creative adaptation), Translate is significantly cheaper than using a foundation model through Bedrock and supports batch translation natively. <strong>A is wrong</strong> because while Bedrock batch inference works, using a full foundation model for simple translation is more expensive than the dedicated Translate service. <strong>B is wrong</strong> because on-demand InvokeModel for 500,000 translations (100K × 5 languages) would be very expensive and complex to orchestrate. <strong>C is wrong</strong> because Provisioned Throughput optimizes for latency and consistency, not cost — and the task is not time-sensitive.'
+    explanation: '<strong>A is correct.</strong> Amazon Translate is a purpose-built, cost-effective translation service. For straightforward translation tasks (not creative adaptation), Translate is significantly cheaper than using a foundation model through Bedrock and supports batch translation natively. <strong>D is wrong</strong> because while Bedrock batch inference works, using a full foundation model for simple translation is more expensive than the dedicated Translate service. <strong>B is wrong</strong> because on-demand InvokeModel for 500,000 translations (100K × 5 languages) would be very expensive and complex to orchestrate. <strong>C is wrong</strong> because Provisioned Throughput optimizes for latency and consistency, not cost — and the task is not time-sensitive.'
   },
   {
     id: 66,
@@ -1000,7 +1000,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use Git tags to version the fine-tuning configuration files.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> Amazon Bedrock model customization jobs automatically record metadata including the base model, training data location, hyperparameters, and output model ARN. This provides built-in lifecycle tracking for each fine-tuning job. <strong>B is wrong</strong> because spreadsheets are manual, error-prone, and not integrated with the Bedrock workflow. <strong>C is wrong</strong> because storing metadata in S3 requires custom tooling to query and does not integrate with Bedrock\'s model management. <strong>D is wrong</strong> because Git tracks configuration file changes but not the actual training job execution metadata and results.'
+    explanation: '<strong>B is correct.</strong> Amazon Bedrock model customization jobs automatically record metadata including the base model, training data location, hyperparameters, and output model ARN. This provides built-in lifecycle tracking for each fine-tuning job. <strong>A is wrong</strong> because spreadsheets are manual, error-prone, and not integrated with the Bedrock workflow. <strong>C is wrong</strong> because storing metadata in S3 requires custom tooling to query and does not integrate with Bedrock\'s model management. <strong>D is wrong</strong> because Git tracks configuration file changes but not the actual training job execution metadata and results.'
   },
   {
     id: 67,
@@ -1015,7 +1015,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Contact AWS Support to request a cost breakdown by application.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> AWS Cost Explorer provides detailed cost analysis with filtering and grouping capabilities. Grouping by cost allocation tags (team, application) quickly reveals which workload is driving the cost increase. <strong>B is wrong</strong> because invocation logs show call counts but not cost per call — different models have different pricing, and you would need to calculate costs manually. <strong>C is wrong</strong> because Budgets alerts when thresholds are exceeded but does not provide detailed breakdowns by application or team. <strong>D is wrong</strong> because contacting Support is slow compared to the self-service Cost Explorer tool.'
+    explanation: '<strong>C is correct.</strong> AWS Cost Explorer provides detailed cost analysis with filtering and grouping capabilities. Grouping by cost allocation tags (team, application) quickly reveals which workload is driving the cost increase. <strong>B is wrong</strong> because invocation logs show call counts but not cost per call — different models have different pricing, and you would need to calculate costs manually. <strong>A is wrong</strong> because Budgets alerts when thresholds are exceeded but does not provide detailed breakdowns by application or team. <strong>D is wrong</strong> because contacting Support is slow compared to the self-service Cost Explorer tool.'
   },
 
   // ─── Domain 5: Testing & Troubleshooting (8 questions, IDs 68–75) ───
@@ -1032,7 +1032,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Lower the temperature to make the model more focused and deterministic.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> For multi-hop questions, the retrieval step must return all relevant chunks across multiple documents. Examining the retrieved passages reveals whether the issue is in retrieval (missing relevant chunks) or generation (model cannot synthesize). Increasing retrieval count and using hybrid search improves coverage. <strong>B is wrong</strong> because the model handles simple questions correctly — the issue is more likely in retrieval, not model capability. <strong>C is wrong</strong> because larger chunks don\'t help if the relevant chunks aren\'t being retrieved in the first place. <strong>D is wrong</strong> because temperature does not affect the model\'s ability to synthesize information from multiple sources.'
+    explanation: '<strong>D is correct.</strong> For multi-hop questions, the retrieval step must return all relevant chunks across multiple documents. Examining the retrieved passages reveals whether the issue is in retrieval (missing relevant chunks) or generation (model cannot synthesize). Increasing retrieval count and using hybrid search improves coverage. <strong>B is wrong</strong> because the model handles simple questions correctly — the issue is more likely in retrieval, not model capability. <strong>C is wrong</strong> because larger chunks don\'t help if the relevant chunks aren\'t being retrieved in the first place. <strong>D is wrong</strong> because temperature does not affect the model\'s ability to synthesize information from multiple sources.'
   },
   {
     id: 69,
@@ -1062,7 +1062,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'The production environment is using a different AWS Region than where the model was fine-tuned.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> A large gap between test accuracy and production accuracy is a classic sign of data distribution mismatch or overfitting. The test dataset likely does not represent the diversity, noise, or characteristics of real production data. The solution is to collect more representative training data and evaluate against production-like samples. <strong>B is wrong</strong> because model accuracy is independent of request volume — high load causes throttling, not accuracy degradation. <strong>C is wrong</strong> because context window issues would cause errors or truncation, not accuracy degradation. <strong>D is wrong</strong> because the AWS Region does not affect model accuracy — the same fine-tuned model produces identical outputs regardless of Region.'
+    explanation: '<strong>B is correct.</strong> A large gap between test accuracy and production accuracy is a classic sign of data distribution mismatch or overfitting. The test dataset likely does not represent the diversity, noise, or characteristics of real production data. The solution is to collect more representative training data and evaluate against production-like samples. <strong>A is wrong</strong> because model accuracy is independent of request volume — high load causes throttling, not accuracy degradation. <strong>C is wrong</strong> because context window issues would cause errors or truncation, not accuracy degradation. <strong>D is wrong</strong> because the AWS Region does not affect model accuracy — the same fine-tuned model produces identical outputs regardless of Region.'
   },
   {
     id: 71,
@@ -1077,7 +1077,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Increase the agent\'s temperature parameter to encourage exploration of different actions.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> The agent uses OpenAPI schema descriptions to determine which action to invoke. If descriptions are ambiguous, overlapping, or unclear, the agent may select the wrong action. Improving descriptions is the first and most effective fix. <strong>B is wrong</strong> because the agent recognizes it needs to call an action (reasoning works) — the issue is action selection, which depends on descriptions, not model capability. <strong>C is wrong</strong> because adding more actions increases complexity and makes the selection problem worse. <strong>D is wrong</strong> because higher temperature increases randomness, which would make action selection even less reliable.'
+    explanation: '<strong>C is correct.</strong> The agent uses OpenAPI schema descriptions to determine which action to invoke. If descriptions are ambiguous, overlapping, or unclear, the agent may select the wrong action. Improving descriptions is the first and most effective fix. <strong>B is wrong</strong> because the agent recognizes it needs to call an action (reasoning works) — the issue is action selection, which depends on descriptions, not model capability. <strong>A is wrong</strong> because adding more actions increases complexity and makes the selection problem worse. <strong>D is wrong</strong> because higher temperature increases randomness, which would make action selection even less reliable.'
   },
   {
     id: 72,
@@ -1092,7 +1092,7 @@ export const questionsV6: Question[] = [
       { letter: 'A', text: 'Switch to a different foundation model that is less likely to trigger Guardrail filters.' }
     ],
     correct: ['D'],
-    explanation: '<strong>A is correct.</strong> Bedrock Guardrails provide trace information showing which specific policy (content filter, denied topic, word filter) triggered a block. Reviewing traces identifies overly broad filters that can be tuned — for example, reducing filter strength from HIGH to MEDIUM or refining denied topic descriptions. <strong>B is wrong</strong> because disabling Guardrails entirely removes all safety protections and system prompts are not reliable alternatives. <strong>C is wrong</strong> because temperature does not affect Guardrail filter evaluation — Guardrails operate independently of model generation parameters. <strong>D is wrong</strong> because Guardrails filter content based on their configuration, not the model — the same Guardrail behavior would occur with any model.'
+    explanation: '<strong>D is correct.</strong> Bedrock Guardrails provide trace information showing which specific policy (content filter, denied topic, word filter) triggered a block. Reviewing traces identifies overly broad filters that can be tuned — for example, reducing filter strength from HIGH to MEDIUM or refining denied topic descriptions. <strong>B is wrong</strong> because disabling Guardrails entirely removes all safety protections and system prompts are not reliable alternatives. <strong>C is wrong</strong> because temperature does not affect Guardrail filter evaluation — Guardrails operate independently of model generation parameters. <strong>A is wrong</strong> because Guardrails filter content based on their configuration, not the model — the same Guardrail behavior would occur with any model.'
   },
   {
     id: 73,
@@ -1122,7 +1122,7 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Check if the AWS Region is experiencing an outage on the AWS Health Dashboard.' }
     ],
     correct: ['B'],
-    explanation: '<strong>A is correct.</strong> ValidationException indicates the request format is invalid. If no code was changed, the most likely cause is a service-side change such as a model deprecation, version update, or input format change. Checking model availability and API documentation for recent changes is the first step. <strong>B is wrong</strong> because expired credentials or permission issues would cause AccessDeniedException or UnauthorizedException, not ValidationException. <strong>C is wrong</strong> because network issues would cause connection timeouts, not validation errors. <strong>D is wrong</strong> because a regional outage would cause service unavailable errors, not validation errors.'
+    explanation: '<strong>B is correct.</strong> ValidationException indicates the request format is invalid. If no code was changed, the most likely cause is a service-side change such as a model deprecation, version update, or input format change. Checking model availability and API documentation for recent changes is the first step. <strong>A is wrong</strong> because expired credentials or permission issues would cause AccessDeniedException or UnauthorizedException, not ValidationException. <strong>C is wrong</strong> because network issues would cause connection timeouts, not validation errors. <strong>D is wrong</strong> because a regional outage would cause service unavailable errors, not validation errors.'
   },
   {
     id: 75,
@@ -1137,6 +1137,6 @@ export const questionsV6: Question[] = [
       { letter: 'D', text: 'Use the Bedrock pricing calculator to determine the maximum throughput based on the selected model.' }
     ],
     correct: ['C'],
-    explanation: '<strong>A is correct.</strong> Gradual load ramp-up is the standard approach for capacity testing. Monitoring CloudWatch metrics (latency, throttling, errors) at each level identifies the inflection point where performance degrades. This approach accounts for shared on-demand capacity, connection overhead, and application-level bottlenecks. <strong>B is wrong</strong> because a sudden burst test does not identify the gradual degradation curve and may trigger aggressive throttling that masks the true capacity. <strong>C is wrong</strong> because latency does not scale linearly with concurrency — shared resources, queueing, and throttling create non-linear behavior. <strong>D is wrong</strong> because the pricing calculator estimates cost, not performance characteristics under load.'
+    explanation: '<strong>C is correct.</strong> Gradual load ramp-up is the standard approach for capacity testing. Monitoring CloudWatch metrics (latency, throttling, errors) at each level identifies the inflection point where performance degrades. This approach accounts for shared on-demand capacity, connection overhead, and application-level bottlenecks. <strong>B is wrong</strong> because a sudden burst test does not identify the gradual degradation curve and may trigger aggressive throttling that masks the true capacity. <strong>A is wrong</strong> because latency does not scale linearly with concurrency — shared resources, queueing, and throttling create non-linear behavior. <strong>D is wrong</strong> because the pricing calculator estimates cost, not performance characteristics under load.'
   },
 ]

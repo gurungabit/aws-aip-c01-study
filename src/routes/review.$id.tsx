@@ -130,7 +130,7 @@ function ReviewPage() {
             )}
 
             <div className="space-y-2">
-              {q.options.map((opt) => {
+              {[...q.options].sort((a, b) => a.letter.localeCompare(b.letter)).map((opt) => {
                 const isCorrect = q.correct.includes(opt.letter)
                 const wasSelected = selected.includes(opt.letter)
                 let cls = 'flex items-start gap-3 rounded-xl border-2 p-3 '
