@@ -18,7 +18,7 @@ export const Route = createFileRoute('/docs/$slug')({
     const base = import.meta.env.BASE_URL.replace(/\/$/, '')
     const res = await fetch(`${base}/docs/${params.slug}.md`)
     if (!res.ok) throw new Error(`Could not load doc: ${params.slug}`)
-    const text = await res.text()
+    const text = (await res.text()).replace(/\r\n/g, '\n')
 
     // Custom renderer: inject id="" on every heading so TOC anchor links work
     marked.use({
