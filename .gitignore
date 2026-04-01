@@ -11,3 +11,4 @@ yarn.lock
 .nitro
 .devcontainer
 .env.sentry-build-plugin
+.claude/

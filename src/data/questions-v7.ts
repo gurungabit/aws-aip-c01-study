@@ -1,7 +1,7 @@
 import type { Question } from './questions'
 
-// ─── Version 7: RETEST FOCUS — Heavy D3/D4/D5 (Security, Ops, Testing) ───
-// Distribution: D3=35, D4=20, D5=20 (all weak domains from first attempt)
+// ─── Version 7: Security Focus — Heavy D3/D4/D5 (Security, Ops, Testing) ───
+// Distribution: D3=35, D4=20, D5=20 (commonly challenging domains)
 
 export const questionsV7: Question[] = [
   // ─── Domain 3: AI Safety, Security & Governance (35 questions, IDs 1–35) ───

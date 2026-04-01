@@ -66,8 +66,8 @@ export const DOCS: DocMeta[] = [
     description: 'Orchestration with Step Functions, Lambda, and supporting AWS services.',
   },
   {
-    slug: '12-RETEST-SECURITY-DEEP-DIVE',
-    title: 'RETEST: Security & Weak Domains Deep Dive',
-    description: 'Targeted study guide for D3 Security, D4 Ops, D5 Testing — everything needed to gain 15 points.',
+    slug: '12-SECURITY-DEEP-DIVE',
+    title: 'Security & Weak Domains Deep Dive',
+    description: 'Targeted study guide for D3 Security, D4 Ops, D5 Testing — the most commonly challenging domains.',
   },
 ]
