@@ -15,8 +15,9 @@ import { questionsV3 } from './questions-v3'
 import { questionsV4 } from './questions-v4'
 import { questionsV5 } from './questions-v5'
 import { questionsV6 } from './questions-v6'
+import { questionsV7 } from './questions-v7'
 
-export const VERSIONS = [1, 2, 3, 4, 5, 6] as const
+export const VERSIONS = [1, 2, 3, 4, 5, 6, 7] as const
 export type ExamVersion = (typeof VERSIONS)[number]
 
 const questionBanks: Record<ExamVersion, Question[]> = {
@@ -26,6 +27,7 @@ const questionBanks: Record<ExamVersion, Question[]> = {
   4: questionsV4,
   5: questionsV5,
   6: questionsV6,
+  7: questionsV7,
 }
 
 export function getQuestions(version: ExamVersion = 1): Question[] {

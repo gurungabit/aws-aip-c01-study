@@ -48,6 +48,16 @@
 
 ### AWS Step Functions
 - Orchestration engine: agent workflows, circuit breakers, ReAct patterns, A/B testing, human-in-the-loop, prompt chains
+- **256 KB payload limit** per state — use S3 for large data, pass S3 URI between states
+- Direct Bedrock integration (bedrock:invokeModel as Task state — no Lambda needed)
+
+### Strands Agents & AWS Agent Squad
+- **Strands Agents**: AWS-native agent framework for autonomous AI agents
+- **AWS Agent Squad**: Multi-agent orchestration for coordinating specialized agents
+- **MCP (Model Context Protocol)**: Standardized protocol for FM-tool interactions (Lambda = stateless, ECS = stateful)
+
+### Amazon Bedrock Data Automation
+- Automated data processing for AI workflows (ETL for GenAI)
 
 ---
 
@@ -92,15 +102,18 @@
 | **AWS Cost Explorer** | Cost analysis |
 | **AWS Cost Anomaly Detection** | Unexpected spend alerts |
 
-### Security
+### Security, Identity & Compliance
 | Service | Exam Relevance |
 |---------|---------------|
 | **IAM** | Access control for everything |
-| **Amazon Cognito** | User authentication/authorization |
-| **AWS KMS** | Encryption key management |
+| **IAM Identity Center** | Centralized SSO, multi-account access management |
+| **IAM Access Analyzer** | Find overly permissive policies, external access |
+| **Amazon Cognito** | User authentication/authorization for GenAI apps |
+| **AWS KMS** | Encryption key management (at rest) |
+| **AWS Encryption SDK** | Client-side encryption before data reaches AWS |
 | **Amazon Macie** | PII detection in S3 |
 | **AWS Secrets Manager** | API key/credential management |
-| **AWS WAF** | Web application firewall |
+| **AWS WAF** | Web application firewall, rate limiting GenAI APIs |
 
 ---
 
@@ -136,7 +149,8 @@
 ### Database (Other)
 | Service | Quick Note |
 |---------|-----------|
-| Amazon ElastiCache | In-memory caching |
+| Amazon ElastiCache | In-memory caching (also supports vector search) |
+| **Amazon MemoryDB** | **Redis-compatible, fastest vector search on AWS, single-digit ms latency, multi-AZ durable** |
 | Amazon Neptune | Graph database (GraphRAG) |
 | Amazon DocumentDB | Document database |
 | Amazon RDS | Relational database (pgvector) |
@@ -149,7 +163,7 @@
 | S3 Lifecycle policies | Data retention automation |
 | AWS DataSync | Data transfer |
 
-### Management
+### Management & Governance
 | Service | Quick Note |
 |---------|-----------|
 | Amazon Managed Grafana | Dashboards |
@@ -157,6 +171,9 @@
 | AWS Systems Manager | Operations management |
 | AWS Service Catalog | Approved service templates |
 | AWS Well-Architected Tool | Architecture review |
+| **AWS Lake Formation** | **Fine-grained data access (row/column level), LF-Tags, cross-account data governance** |
+| **AWS Control Tower** | **Multi-account governance, SCPs, preventive/detective guardrails** |
+| **CloudWatch Synthetics** | **Automated canary tests for GenAI API health monitoring** |
 
 ### Other
 | Service | Quick Note |
