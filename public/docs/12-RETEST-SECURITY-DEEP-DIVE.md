@@ -264,25 +264,194 @@ Lake Formation (data access) -> Glue Data Catalog (metadata) -> S3 (raw data) ->
 
 ---
 
-### 1.9 AWS Control Tower — Multi-Account Governance
+### 1.9 AWS Organizations, SCPs & Control Tower — Multi-Account Governance
 
-> **Note**: Also appeared on your beta exam. Know the basics.
+> **Appeared on your beta exam.** Know SCPs deeply — they are the exam's go-to for org-wide restrictions.
 
-| Feature | GenAI Relevance |
-|---------|----------------|
-| **Landing Zone** | Pre-configured multi-account setup |
-| **Guardrails (SCPs)** | Preventive/detective controls across accounts |
-| **AWS Organizations** | Account structure management |
-| **Service Control Policies** | Restrict which services/regions accounts can use |
-| **Account Factory** | Automated new account provisioning |
+#### AWS Organizations — The Foundation
 
-**GenAI governance patterns:**
-- SCP to restrict Bedrock access to specific regions only
-- SCP to prevent use of certain foundation models
-- Separate accounts for dev/staging/prod GenAI workloads
-- Detective guardrail: alert if someone enables a model not in the approved list
+```mermaid
+flowchart TD
+    A["Management Account\n<i>Root — owns the org</i>"] --> B["Production OU"]
+    A --> C["Development OU"]
+    A --> D["Sandbox OU"]
+    B --> E["Prod Account A\n<i>Bedrock enabled</i>"]
+    B --> F["Prod Account B\n<i>Bedrock enabled</i>"]
+    C --> G["Dev Account A\n<i>Bedrock restricted</i>"]
+    C --> H["Dev Account B\n<i>Bedrock restricted</i>"]
+    D --> I["Sandbox Account\n<i>Bedrock denied</i>"]
 
-**Exam pattern**: "Prevent developers from using foundation models in non-approved regions across all accounts" — Control Tower with SCP restricting `bedrock:*` to specific regions.
+    J["SCP: Allow Bedrock"] -.->|"Attached to"| B
+    K["SCP: Restrict models"] -.->|"Attached to"| C
+    L["SCP: Deny Bedrock"] -.->|"Attached to"| D
+```
+
+| Concept | What to Know |
+|---------|-------------|
+| **Organization** | Collection of AWS accounts managed centrally |
+| **Management Account** | Root account that creates the org — SCPs do NOT apply to it |
+| **Organizational Unit (OU)** | Group of accounts (e.g., Production OU, Dev OU, Sandbox OU) |
+| **Service Control Policy (SCP)** | Permission boundary applied to OU or account — restricts what's POSSIBLE |
+| **Consolidated Billing** | Single bill across all accounts — track GenAI costs per account |
+
+#### How SCPs Work — Critical Exam Concept
+
+```
+Final Permission = IAM Policy ∩ SCP
+
+If IAM says ALLOW but SCP says DENY → DENIED
+If IAM says ALLOW and SCP says ALLOW → ALLOWED
+If SCP doesn't mention the action → DENIED (implicit deny)
+```
+
+**SCPs are guardrails, not grants.** They set the MAXIMUM permissions possible. They don't grant permissions — IAM policies still needed.
+
+| SCP Fact | Detail |
+|----------|--------|
+| **SCPs don't grant access** | They only restrict. Users still need IAM policies to actually do things |
+| **SCPs are inherited** | Attach to OU → applies to ALL accounts in that OU and child OUs |
+| **Management account exempt** | SCPs never apply to the management account |
+| **Deny overrides everything** | An explicit Deny in SCP cannot be overridden by IAM Allow |
+| **Default SCP** | `FullAWSAccess` — allows everything (you add restrictions on top) |
+
+#### SCP Examples for GenAI — Know These Patterns
+
+**Pattern 1: Restrict Bedrock to approved regions only**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyBedrockOutsideApprovedRegions",
+      "Effect": "Deny",
+      "Action": "bedrock:*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": ["us-east-1", "eu-west-1"]
+        }
+      }
+    }
+  ]
+}
+```
+
+**Exam angle**: "Prevent any account from using Bedrock outside us-east-1 and eu-west-1" → This SCP.
+
+**Pattern 2: Restrict to specific foundation models only**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyUnapprovedModels",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotLike": {
+          "bedrock:ModelId": [
+            "anthropic.claude-3-5-sonnet-*",
+            "amazon.titan-text-express-*"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+**Exam angle**: "Only allow Claude Sonnet and Titan Text — deny all other models across the org" → This SCP.
+
+**Pattern 3: Deny Bedrock entirely for sandbox accounts**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyAllBedrock",
+      "Effect": "Deny",
+      "Action": "bedrock:*",
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+**Exam angle**: "Block all Bedrock access in sandbox/dev accounts" → Attach this SCP to the Sandbox OU.
+
+**Pattern 4: Deny model customization (fine-tuning) but allow inference**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyModelCustomization",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:CreateModelCustomizationJob",
+        "bedrock:CreateProvisionedModelThroughput"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+**Exam angle**: "Allow developers to invoke models but prevent them from fine-tuning or provisioning throughput" → This SCP.
+
+#### SCP vs IAM Policy vs Bedrock Guardrails — When to Use Which
+
+| Control Type | Scope | What It Controls | Example |
+|-------------|-------|-----------------|---------|
+| **SCP** | Entire OU/account | Which AWS **API actions** are possible | "No one in dev can call bedrock:InvokeModel" |
+| **IAM Policy** | Specific user/role | Which AWS **API actions** a principal can perform | "This Lambda role can only call bedrock:InvokeModel on Claude Sonnet" |
+| **Bedrock Guardrails** | Model I/O content | What **content** the model can process/generate | "Never include PII in responses" |
+| **VPC Endpoint Policy** | Network path | Which actions allowed through that **network endpoint** | "Only allow bedrock:InvokeModel through this VPC endpoint" |
+
+**Key distinction:**
+- **SCPs** = "Can this ACCOUNT use Bedrock?" (org-level boundary)
+- **IAM** = "Can this USER/ROLE call this specific Bedrock action?" (identity-level permission)
+- **Guardrails** = "Is this CONTENT safe/appropriate?" (content-level filtering)
+
+They work in layers — all three can (and should) be used together.
+
+#### AWS Control Tower — Organizations Made Easy
+
+| Feature | What It Does |
+|---------|-------------|
+| **Landing Zone** | Pre-configured multi-account setup with best practices |
+| **Guardrails** | Pre-built SCPs (preventive) and Config rules (detective) |
+| **Account Factory** | Automated new account provisioning with templates |
+| **Dashboard** | Single pane of glass for compliance across all accounts |
+
+**Control Tower guardrail types:**
+
+| Type | How It Works | Example |
+|------|-------------|---------|
+| **Preventive** | SCP — blocks the action before it happens | Deny Bedrock in non-approved regions |
+| **Detective** | AWS Config rule — alerts after a violation | Alert if someone creates a public S3 bucket |
+| **Proactive** | CloudFormation Hook — blocks non-compliant resources at deploy time | Block EC2 instances without encryption |
+
+**Exam patterns:**
+
+| "When the question says..." | Answer is... |
+|------------------------------|-------------|
+| "Prevent Bedrock usage in non-approved regions across ALL accounts" | SCP with `aws:RequestedRegion` condition |
+| "Block specific models across the org" | SCP with `bedrock:ModelId` condition |
+| "Deny all Bedrock in sandbox accounts" | SCP attached to Sandbox OU |
+| "Allow inference but deny fine-tuning org-wide" | SCP denying `bedrock:CreateModelCustomizationJob` |
+| "Set up multi-account governance from scratch" | AWS Control Tower Landing Zone |
+| "Detect non-compliant resources after deployment" | Control Tower detective guardrail (Config rule) |
+| "Centralized billing for GenAI costs per team" | AWS Organizations consolidated billing + per-account tracking |
+| "Management account not affected by restriction" | Correct — SCPs don't apply to management account |
 
 ---
 
