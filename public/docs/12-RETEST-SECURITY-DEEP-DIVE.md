@@ -769,6 +769,12 @@ flowchart LR
 | "Test agent performance" | Bedrock Agent Evaluations |
 | "Proactive API health checks" | CloudWatch Synthetics |
 | "Analyze FM request/response logs" | Bedrock Invocation Logging + CloudWatch Logs Insights |
+| "Deploy agents from any framework at scale" | Amazon Bedrock AgentCore |
+| "Agent persistent memory across sessions" | AgentCore Memory |
+| "Enforce real-time policy on agent tools" | AgentCore Policy Engine (Cedar) |
+| "Agent needs to browse websites safely" | AgentCore Secure Browser |
+| "Convert APIs into agent tools" | AgentCore Gateway |
+| "Quick guided agent building" | Bedrock Agents (not AgentCore) |
 | "Step Functions output too large" | Store in S3, pass S3 URI between states |
 | "Multi-agent orchestration" | Strands Agents + AWS Agent Squad |
 | "Agent-tool protocol" | Model Context Protocol (MCP) |
@@ -909,6 +915,73 @@ Step Functions has **direct Bedrock integration** — you can call `bedrock:invo
 | **On-premises integration** | AWS Outposts | Data residency requirements |
 | **GraphQL for GenAI** | AWS AppSync | Real-time subscriptions for chat |
 | **WebSockets for streaming** | API Gateway WebSocket API | Real-time FM streaming to browsers |
+
+### 7.7 Amazon Bedrock AgentCore — Deploy Agents at Scale
+
+> **On the official in-scope list.** Know the difference between Bedrock Agents vs AgentCore.
+
+#### What Is It?
+
+Enterprise-grade platform for deploying and operating AI agents at scale — **any framework, any model, no infrastructure management**.
+
+#### AgentCore Services — 3 Categories
+
+| Category | Service | What It Does |
+|----------|---------|-------------|
+| **Build** | **Memory** | Persistent context across sessions; episodic memory (agents learn from past interactions) |
+| **Build** | **Gateway** | Transforms APIs/Lambda into agent-compatible tools; connects to MCP servers; semantic tool discovery |
+| **Build** | **Secure Browser** | Sandboxed web browsing for agents (navigate sites, fill forms safely) |
+| **Build** | **Code Interpreter** | Secure code execution for data analysis, visualizations, computations |
+| **Build** | **Policy Engine** | Natural language → Cedar policies; intercepts tool calls in real-time to enforce boundaries |
+| **Deploy** | **Serverless Runtime** | Deploy agents with session isolation; supports workloads from real-time chat to 8-hour async tasks |
+| **Deploy** | **Identity** | Integrates with existing IdPs; agents securely access AWS + third-party services |
+| **Deploy** | **VPC + PrivateLink** | Enterprise network security for deployed agents |
+| **Monitor** | **Observability** | CloudWatch dashboards, OpenTelemetry, token/latency/error tracking |
+| **Monitor** | **Evaluations** | Continuous quality scoring: correctness, helpfulness, safety, goal success rate |
+
+#### Bedrock Agents vs AgentCore — When to Use Which
+
+| Feature | Bedrock Agents | AgentCore |
+|---------|---------------|-----------|
+| **Builder experience** | Guided, console-based | Code-first, any framework |
+| **Framework** | Bedrock-native only | Any: CrewAI, LangGraph, LlamaIndex, Strands, custom |
+| **Model support** | Bedrock models | Any model (Bedrock, OpenAI, self-hosted, etc.) |
+| **Target user** | Quick start, low-code | Production engineers at scale |
+| **Infrastructure** | Fully managed by Bedrock | Fully managed by AgentCore (serverless) |
+| **Session duration** | Short conversations | Up to 8-hour async tasks |
+| **Policy control** | Guardrails | Cedar-based Policy Engine (intercepts tool calls) |
+| **Memory** | Basic conversation history | Persistent memory with episodic learning |
+
+#### Exam Patterns
+
+| "When the question says..." | Answer is... |
+|------------------------------|-------------|
+| "Deploy agents from any framework at scale" | **AgentCore** |
+| "Quick guided agent building with Bedrock console" | **Bedrock Agents** |
+| "Agent needs persistent memory across sessions" | **AgentCore Memory** |
+| "Convert existing APIs into agent tools" | **AgentCore Gateway** |
+| "Enforce real-time policy on agent tool calls" | **AgentCore Policy Engine (Cedar)** |
+| "Agent needs to browse web pages safely" | **AgentCore Secure Browser** |
+| "Agent needs to run code/generate charts" | **AgentCore Code Interpreter** |
+| "Monitor agent quality in production" | **AgentCore Evaluations** |
+| "Build agent, no framework preference, just Bedrock" | **Bedrock Agents** |
+
+#### The Agent Landscape — Complete Picture
+
+```mermaid
+flowchart TD
+    A["Need an AI Agent?"] --> B{"What framework?"}
+    B -->|"Bedrock native, guided"| C["Bedrock Agents\n<i>Console-based, quick start</i>"]
+    B -->|"AWS native code-first"| D["Strands Agents\n<i>Python SDK, flexible</i>"]
+    B -->|"Any framework\n(LangGraph, CrewAI, etc.)"| E["AgentCore\n<i>Deploy + operate at scale</i>"]
+
+    F{"Multiple agents?"} -->|"Yes"| G["AWS Agent Squad\n<i>Multi-agent orchestration</i>"]
+
+    H{"Need production deployment?"} -->|"Any framework at scale"| E
+    H -->|"Bedrock-native at scale"| C
+```
+
+**Common pattern**: Build with **Strands Agents** → Deploy with **AgentCore** → Orchestrate with **Agent Squad**
 
 ---
 
